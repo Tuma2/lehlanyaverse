@@ -1,0 +1,20 @@
+# Gradle / Kotlin
+.gradle
+.kotlin
+build/
+out/
+local.properties
+
+# Kobweb
+site/.kobweb/*
+!site/.kobweb/conf.yaml
+
+# IDE / OS
+.idea
+*.iml
+*.ipr
+.DS_Store
+
+# Node tooling (Lighthouse, OG rendering)
+node_modules/
+.lighthouseci/

@@ -1,0 +1,13 @@
+{
+  "name": "LEHLANYAVERSE",
+  "short_name": "LEHLANYAVERSE",
+  "description": "Mission dossier of Sebabatso Moleele, Java backend software engineer.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#050604",
+  "theme_color": "#050604",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

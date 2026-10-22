@@ -1,0 +1,12 @@
+{
+  "name": "lehlanyaverse-og",
+  "private": true,
+  "description": "Renders Open Graph preview images (1200x630) from site/.../data/Intel.kt",
+  "type": "module",
+  "scripts": {
+    "og": "node render.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.56.1"
+  }
+}

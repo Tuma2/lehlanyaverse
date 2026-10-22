@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: gradle
+    directory: /
+    schedule: { interval: weekly }
+    # Kobweb pins Kotlin / Compose versions; bump these together with Kobweb, not individually
+    ignore:
+      - dependency-name: "org.jetbrains.kotlin*"
+      - dependency-name: "androidx.compose.runtime*"
+      - dependency-name: "org.jetbrains.compose*"
+  - package-ecosystem: npm
+    directory: /tools/og
+    schedule: { interval: monthly }
