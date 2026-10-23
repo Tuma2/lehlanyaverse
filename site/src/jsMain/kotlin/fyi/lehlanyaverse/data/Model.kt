@@ -20,7 +20,8 @@ data class Operator(
     val stats: List<Stat>,
 )
 
-data class Stat(val value: String, val label: String)
+/** [redacted] hides [value] behind a black bar that declassifies on hover / tap. */
+data class Stat(val value: String, val label: String, val redacted: Boolean = false)
 
 data class Skill(
     val name: String,

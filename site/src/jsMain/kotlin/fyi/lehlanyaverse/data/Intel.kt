@@ -28,7 +28,7 @@ object Intel {
         ),
         stats = listOf(
             Stat("4+", "Years commercial Java"),
-            Stat("500", "Learners on live analytics"),
+            Stat("500", "Learners on live analytics", redacted = true),
             Stat("~4h", "Saved weekly by automation"),
             Stat("2", "Sectors: fintech + edtech"),
         ),
@@ -79,7 +79,7 @@ object Intel {
             objectives = listOf(
                 "Built and maintain the Spring Boot + MongoDB LMS backend",
                 "Shipped REST APIs with zero-downtime releases",
-                "MongoTemplate aggregation pipelines powering real-time analytics for 500 active learners",
+                "MongoTemplate aggregation pipelines powering real-time analytics for active learners",
                 "Spring Security with custom authentication",
                 "Built a Python grading automation bot that marks learner assessments",
                 "Automated business functions with Java, Python and AI agents (~4 hrs/week saved)",

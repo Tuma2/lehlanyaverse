@@ -692,6 +692,13 @@ html[data-boot] body::after {
   overflow-wrap: anywhere;
 }
 
+/* Small phones: shrink below --fs-h2's floor so the longest word (COMMENDATIONS) fits beside the number unbroken */
+@media (max-width: 29.99rem) {
+  .sec-head__title {
+    font-size: clamp(1.6rem, 8vw, 2.75rem);
+  }
+}
+
 /* Stamp: worn ink */
 .stamp {
   display: inline-block;
@@ -777,7 +784,11 @@ html[data-boot] body::after {
   box-shadow: 0 0 0 3px var(--void), 0 0 0 5px var(--orange), 0 0.75rem 1.5rem rgba(0, 0, 0, 0.5);
 }
 
-/* Redacted: declassifies on hover / keyboard focus; screen readers always get the text */
+/*
+ * Redacted: declassifies on hover, keyboard focus or tap; screen readers always get the text.
+ * :focus (not just :focus-visible) because a tap focuses the tabindex span without matching :focus-visible,
+ * and cursor: pointer is what makes iOS Safari treat the span as tappable at all.
+ */
 .redact {
   position: relative;
   padding: 0 0.15em;
@@ -785,20 +796,40 @@ html[data-boot] body::after {
   background: repeating-linear-gradient(-45deg, #000 0 7px, #161616 7px 9px);
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  cursor: help;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
   transition: color var(--t-med), background-color var(--t-med);
 }
 
+/* Invisible pad so the bar meets the 24px minimum tap target without changing how it looks */
+.redact::after {
+  content: "";
+  position: absolute;
+  inset: -0.3em -0.15em;
+}
+
 .redact:hover,
-.redact:focus-visible {
+.redact:focus {
   color: var(--void);
   background: var(--acid);
 }
 
+/* nowrap: on narrow screens the hint drops below the bar whole instead of breaking mid-phrase */
 .redact-hint {
+  display: inline-block;
   font-size: var(--fs-xs);
   letter-spacing: 0.14em;
+  white-space: nowrap;
   color: var(--dim);
+}
+
+.hero__aka .redact-hint {
+  margin-left: 0.75em;
+}
+
+/* Stat cells are half a phone wide: there the hint has to wrap */
+.stats__cell .redact-hint {
+  white-space: normal;
 }
 
 /* Typewriter: single-line readouts only */
@@ -961,9 +992,14 @@ html[data-boot] body::after {
 /* 8. SECTIONS ----------------------------------------------------------- */
 
 /* 01 OPERATOR PROFILE */
+/*
+ * minmax(0, 1fr) on the single-column grids: an implicit auto column grows to its min-content, and the
+ * nowrap typewriter kicker would otherwise widen the whole hero past a phone's viewport (then get clipped).
+ */
 .hero {
   position: relative;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   padding-top: clamp(2rem, 6vw, 4.5rem);
 }
@@ -1126,6 +1162,7 @@ html[data-boot] body::after {
 
 .hero__grid {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
 }
 

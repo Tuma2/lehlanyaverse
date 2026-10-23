@@ -37,7 +37,7 @@ fun OperatorProfile() {
                 P({ classes("hero__aka") }) {
                     Text("AKA ")
                     Redacted(op.callsign)
-                    Deco("redact-hint") { Text("  [ HOVER / TAP TO DECLASSIFY ]") }
+                    Deco("redact-hint") { Text("[ HOVER / TAP TO DECLASSIFY ]") }
                 }
                 Div({ classes("hero__role") }) {
                     Span({ classes("hero__role-chip") }) { Text(op.role) }
@@ -109,8 +109,10 @@ private fun StatsBoard() {
         Div({ classes("stats__grid") }) {
             Intel.operator.stats.forEach { s ->
                 Div({ classes("stats__cell") }) {
-                    Span({ classes("stats__value") }) { Text(s.value) }
+                    Span({ classes("stats__value") }) { if (s.redacted) Redacted(s.value) else Text(s.value) }
                     Span({ classes("stats__label", "readout") }) { Text(s.label) }
+                    // Non-breaking spaces glue the brackets to their words, so a wrap never strands a lone "]"
+                    if (s.redacted) Deco("redact-hint") { Text("[ HOVER / TAP TO REVEAL ]") }
                 }
             }
         }
