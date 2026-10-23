@@ -6,6 +6,7 @@ out/
 local.properties
 
 # Kobweb
+/.kobweb/
 site/.kobweb/*
 !site/.kobweb/conf.yaml
 
