@@ -18,10 +18,14 @@
       window.localStorage.setItem("lv.booted", "1");
 
       root.setAttribute("data-boot", "");
+      // The ID card's photo stack drops in as the overlay clears (hud.css). Dropped again before the app
+      // re-mounts the DOM, so the animation never replays on the new nodes.
+      root.setAttribute("data-drop", "");
       var end = function () {
         root.removeAttribute("data-boot");
         window.removeEventListener("keydown", end);
         window.removeEventListener("pointerdown", end);
+        window.setTimeout(function () { root.removeAttribute("data-drop"); }, 600);
       };
       window.addEventListener("keydown", end);
       window.addEventListener("pointerdown", end);
@@ -49,6 +53,37 @@
     document.body.appendChild(app);
   }
 
+  /*
+   * 3. Photo stack. Hide the "tap to flip" hint before first paint for visitors who have already flipped.
+   *    A tap on the stack before the app is running lands on inert pre-rendered DOM, so it is recorded here
+   *    and the stack replays it once mounted (PolaroidStack in Polaroid.kt).
+   */
+  function photoState() {
+    try {
+      if (exporting) return;
+      if (window.localStorage.getItem("lv.flipped")) document.documentElement.setAttribute("data-flipped", "");
+    } catch (e) {
+      // Storage blocked: the hint stays visible
+    }
+  }
+
+  // Listens from page load until the app is running (PageLayout adds html.js-ready), not just for the first
+  // interaction: scrolling down to the card usually starts the app, and the tap lands while it is still loading.
+  var flipEvents = ["pointerdown", "keydown"];
+  function notePendingFlip(e) {
+    if (document.documentElement.classList.contains("js-ready")) {
+      flipEvents.forEach(function (t) { window.removeEventListener(t, notePendingFlip, true); });
+      return;
+    }
+    var target = e.type === "keydown" ? document.activeElement : e.target;
+    if (!target || !target.closest || !target.closest(".pstack__btn")) return;
+    if (e.type === "keydown") {
+      if (e.key === "Enter" || e.key === " ") window.lvPendingFlip = "key";
+    } else {
+      window.lvPendingFlip = "pointer";
+    }
+  }
+
   var started = false;
   var triggers = ["pointerdown", "keydown", "wheel", "touchstart", "scroll"];
   function startOnce() {
@@ -59,8 +94,11 @@
   }
 
   bootGate();
+  photoState();
   document.addEventListener("DOMContentLoaded", function () {
     if (exporting) return startApp();
+    // Registered before the start triggers, so a tap that also starts the app is recorded too
+    flipEvents.forEach(function (t) { window.addEventListener(t, notePendingFlip, { capture: true, passive: true }); });
     triggers.forEach(function (t) { window.addEventListener(t, startOnce, { capture: true, passive: true }); });
     window.setTimeout(startOnce, 5000);
   });

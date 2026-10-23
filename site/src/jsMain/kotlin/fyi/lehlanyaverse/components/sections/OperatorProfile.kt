@@ -5,6 +5,7 @@ import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Deco
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
+import fyi.lehlanyaverse.components.hud.PolaroidStack
 import fyi.lehlanyaverse.components.hud.Redacted
 import fyi.lehlanyaverse.components.hud.Stamp
 import fyi.lehlanyaverse.components.hud.StampInk
@@ -73,15 +74,22 @@ fun OperatorProfile() {
 @Composable
 private fun IdCard() {
     val op = Intel.operator
-    val initials = op.name.split(' ').joinToString("") { it.take(1) }
     Panel(tag = "aside", accent = Accent.ACID, tilt = Tilt.RIGHT, attrs = { attr("aria-label", "Operator ID card") }) {
-        Tape()
+        // Tape and stamp belong to the card, not a photo, so they stay put while the prints swap
+        Tape("right")
         PanelBar("ID" to "OP-0001", "CLR" to op.clearance)
         Div({ classes("idcard") }) {
-            // TODO(sebabatso): swap the initials for a photo: an <img> with real alt text
-            Div({ classes("idcard__photo"); attr("aria-hidden", "true") }) { Text(initials) }
-            Div({ classes("idcard__rows") }) {
+            Div({ classes("idcard__photos") }) {
+                PolaroidStack(op.photos, label = "operator photo")
+                Span({ classes("idcard__verified"); attr("aria-hidden", "true") }) {
+                    Stamp("ID verified", StampInk.ACID, small = true)
+                }
+            }
+            // Overlaps the stack's lower edge so photo and status read as one cluster
+            Div({ classes("idcard__status") }) {
                 IdRow("Status") { Span({ classes("status-live") }) { Text(op.status) } }
+            }
+            Div({ classes("idcard__rows") }) {
                 IdRow("Role") { Text("${op.role} // ${op.specialty}") }
                 IdRow("AO") { Text(op.location) }
                 IdRow("Grid") { Text(op.coordinates) }

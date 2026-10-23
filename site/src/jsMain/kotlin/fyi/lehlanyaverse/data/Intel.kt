@@ -32,6 +32,12 @@ object Intel {
             Stat("~4h", "Saved weekly by automation"),
             Stat("2", "Sectors: fintech + edtech"),
         ),
+        // Regenerate the image files with: npm --prefix tools/og run photos -- <folder of originals>
+        photos = listOf(
+            Photo("/images/operator-1.jpg", "Photo of Sebabatso Moleele, studio portrait", "OPERATOR: S. MOLEELE", "ID PHOTO // 2026"),
+            Photo("/images/operator-2.jpg", "Photo of Sebabatso Moleele, relaxing on a balcony", "OFF DUTY", "SIGHTED: JHB"),
+            Photo("/images/operator-3.jpg", "Photo of Sebabatso Moleele, selfie in a beanie and glasses", "FIELD RECON", "CALLSIGN LEHLANYA"),
+        ),
     )
 
     // TODO(sebabatso): proficiency values are estimates. Adjust to taste (0–100).

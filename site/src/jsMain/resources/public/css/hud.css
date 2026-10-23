@@ -18,6 +18,14 @@
   font-weight: 800;
   font-display: swap;
 }
+/* Handwriting on Polaroids (Apache 2.0). Decorative and below the fold of the H1, so not preloaded. */
+@font-face {
+  font-family: "Permanent Marker";
+  src: url("/fonts/permanent-marker.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
 @font-face {
   font-family: "JetBrains Mono";
   src: url("/fonts/jetbrains-mono.woff2") format("woff2");
@@ -989,6 +997,293 @@ html[data-boot] body::after {
   text-transform: uppercase;
 }
 
+/* Polaroids: components/hud/Polaroid.kt ---------------------------------- */
+.polaroid {
+  --paper: #f3efe6;
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 0.65rem 0.65rem 0;
+  background: url("/img/grain.svg") 0 0 / 160px, var(--paper);
+  background-blend-mode: multiply;
+  /* Faint aged edge, then the lift off the page */
+  box-shadow:
+    inset 0 0 0 1px rgba(110, 90, 50, 0.18),
+    inset 0 0 1.4rem rgba(150, 118, 64, 0.22),
+    0 1px 1px rgba(0, 0, 0, 0.35),
+    0 0.6rem 1.4rem rgba(0, 0, 0, 0.5);
+  color: #23211c;
+}
+
+.polaroid__img {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #1d1f18;
+}
+
+.polaroid__img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.7) sepia(0.22) contrast(1.06) brightness(0.96);
+  transition: filter var(--t-med) var(--ease-out);
+}
+
+/* Olive tint + vignette, then film grain on top */
+.polaroid__img::before,
+.polaroid__img::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease-out);
+}
+
+.polaroid__img::before {
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(10, 12, 4, 0.55) 100%),
+    rgba(96, 104, 40, 0.2);
+  mix-blend-mode: multiply;
+}
+
+.polaroid__img::after {
+  background: url("/img/grain.svg") 0 0 / 180px;
+  opacity: 0.28;
+  mix-blend-mode: overlay;
+}
+
+/* Caption scales with the print (container units) so it stays on one line from phones up; note beneath */
+.polaroid__caption {
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
+  min-height: 3.6rem;
+  padding: 0.5rem 0.15rem 0.65rem;
+  font-family: "Permanent Marker", "Segoe Print", "Bradley Hand", cursive;
+  font-size: clamp(0.75rem, 6.8cqi, 1.1rem);
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.polaroid {
+  container-type: inline-size;
+}
+
+.polaroid__note {
+  padding-left: 0.4rem;
+  font-size: max(0.7em, 0.7rem);
+  color: #8a2a1c;
+  rotate: -2deg;
+}
+
+/* Pinned: one print and a pushpin */
+.pinned {
+  position: relative;
+  width: min(100%, 17rem);
+}
+
+.pinned .polaroid {
+  rotate: var(--rot, -4deg);
+  transition: rotate var(--t-med) var(--ease-out);
+}
+
+.pinned:hover .polaroid {
+  rotate: 0deg;
+}
+
+.pinned:hover .polaroid__img img,
+.pstack:has(.pstack__btn:hover, .pstack__btn:focus-visible) .pstack__item[data-pos="0"] .polaroid__img img {
+  filter: none;
+}
+
+.pinned:hover .polaroid__img::before,
+.pstack:has(.pstack__btn:hover, .pstack__btn:focus-visible) .pstack__item[data-pos="0"] .polaroid__img::before {
+  opacity: 0.35;
+}
+
+.pinned__pin {
+  --pin: #d8261c;
+  --pin-dark: #7d0d08;
+  --pin-hi: #ff9a8a;
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  z-index: 2;
+  width: 1.4rem;
+  height: 1.4rem;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, var(--pin-hi) 0 0.12rem, var(--pin) 0.35rem, var(--pin-dark) 100%);
+  /* Shadow cast down-right onto the print */
+  box-shadow: 0.25rem 0.4rem 0.35rem rgba(0, 0, 0, 0.45);
+}
+
+.pinned--acid .pinned__pin {
+  --pin: #9ed81f;
+  --pin-dark: #3e5a06;
+  --pin-hi: #f1ffc8;
+}
+
+/* Stack: prints share one grid cell; the padding leaves room for the offset prints peeking out */
+.pstack {
+  --w: min(100%, 17rem);
+  position: relative;
+  width: var(--w);
+}
+
+.pstack__photos {
+  position: relative;
+  display: grid;
+  padding: 0 1.4rem 1.5rem 0;
+}
+
+.pstack__item {
+  --x: 0px;
+  --y: 0px;
+  --rot: var(--rot0, -4deg);
+  grid-area: 1 / 1;
+  transform: translate(var(--x), var(--y)) rotate(var(--rot));
+  transition: transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+}
+
+.pstack__item[data-pos="1"] {
+  --x: 12px;
+  --y: 12px;
+  --rot: var(--rot1, 5deg);
+  box-shadow:
+    inset 0 0 0 1px rgba(110, 90, 50, 0.18),
+    inset 0 0 1.4rem rgba(150, 118, 64, 0.3),
+    0 1px 1px rgba(0, 0, 0, 0.45),
+    0 0.6rem 1.4rem rgba(0, 0, 0, 0.65);
+  filter: brightness(0.9);
+}
+
+.pstack__item[data-pos="2"] {
+  --x: 20px;
+  --y: 22px;
+  --rot: var(--rot2, -1deg);
+  filter: brightness(0.8);
+}
+
+/* Hover/focus: the top print lifts and its corner curls a little, hinting it can be moved */
+.pstack__item[data-pos="0"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  background: linear-gradient(135deg, transparent 50%, #d9d2c2 50%, #fffaf0 75%, #c9c1ae);
+  box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.18);
+  transition: width var(--t-fast) var(--ease-out), height var(--t-fast) var(--ease-out);
+}
+
+.pstack:has(.pstack__btn:hover, .pstack__btn:focus-visible) .pstack__item[data-pos="0"]:not(.is-leaving) {
+  transform: translate(-2px, -7px) rotate(calc(var(--rot0, -4deg) + 1.5deg));
+  box-shadow:
+    inset 0 0 0 1px rgba(110, 90, 50, 0.18),
+    inset 0 0 1.4rem rgba(150, 118, 64, 0.22),
+    0 2px 2px rgba(0, 0, 0, 0.3),
+    0 1.1rem 2rem rgba(0, 0, 0, 0.55);
+}
+
+.pstack:has(.pstack__btn:hover, .pstack__btn:focus-visible) .pstack__item[data-pos="0"]:not(.is-leaving)::after {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Sent to the back: out up-and-aside, then tucked under the stack (z-index flips mid-flight) */
+.pstack__item.is-leaving {
+  animation: pstack-out 0.42s var(--ease-out) both;
+}
+
+@keyframes pstack-out {
+  0% { transform: translate(0, 0) rotate(var(--rot0, -4deg)); z-index: 50; }
+  55% { transform: translate(-36%, -16%) rotate(calc(var(--rot0, -4deg) - 9deg)); z-index: 50; }
+  56% { z-index: 0; }
+  100% { transform: translate(var(--x), var(--y)) rotate(var(--rot)); z-index: 0; }
+}
+
+/* The whole top print is the hit area; the ring sits on the print, HUD style */
+.pstack__btn {
+  grid-area: 1 / 1;
+  z-index: 60;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  rotate: var(--rot0, -4deg);
+}
+
+.pstack__btn:focus-visible {
+  outline: 3px solid var(--acid);
+  outline-offset: 4px;
+}
+
+.pstack__clip {
+  position: absolute;
+  top: -1.6rem;
+  left: 0.4rem;
+  z-index: 65;
+  width: 1.6rem;
+  height: 3.85rem;
+  background: url("/img/paperclip.svg") center / contain no-repeat;
+  rotate: -6deg;
+  pointer-events: none;
+}
+
+.pstack__hint {
+  position: absolute;
+  top: 0.4rem;
+  right: -0.4rem;
+  z-index: 66;
+  font-family: "Permanent Marker", "Segoe Print", cursive;
+  font-size: 0.95rem;
+  color: var(--acid);
+  text-shadow: 0 1px 0 var(--void), 0 0 0.6rem rgba(5, 6, 4, 0.9);
+  rotate: 9deg;
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease-out);
+}
+
+.pstack__hint::after {
+  content: " \2197";
+}
+
+html[data-flipped] .pstack__hint {
+  opacity: 0;
+}
+
+/* Wide screens: the hint moves off the print into the margin beside the stack */
+@media (min-width: 40rem) {
+  .pstack__hint {
+    top: 1.5rem;
+    right: auto;
+    left: calc(100% + 0.25rem);
+    white-space: nowrap;
+  }
+}
+
+/* First visit: the stack drops onto the card as the intro overlay clears (boot.js sets data-drop) */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-drop]:not([data-boot]) .pstack {
+    animation: pstack-drop 0.38s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+  }
+}
+
+@keyframes pstack-drop {
+  0% { opacity: 0; transform: translateY(-2.5rem) rotate(-6deg) scale(1.06); }
+  70% { opacity: 1; transform: translateY(0.2rem) rotate(0.6deg) scale(1); }
+  100% { opacity: 1; transform: none; }
+}
+
 /* 8. SECTIONS ----------------------------------------------------------- */
 
 /* 01 OPERATOR PROFILE */
@@ -1087,32 +1382,55 @@ html[data-boot] body::after {
   margin-right: 0.6em;
 }
 
+/* ID card: photo stack on top, ACTIVE DUTY strip overlapping its lower edge, then the remaining rows */
 .idcard {
   display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr);
-  gap: 1rem 1.25rem;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.idcard__photo {
+/* ~70% of a phone-width card, capped on larger screens; the stack and the stamp share this box */
+.idcard__photos {
   position: relative;
-  aspect-ratio: 3 / 4;
-  display: grid;
-  place-items: center;
-  background:
-    url("/img/reticle.svg") center / 92% no-repeat,
-    repeating-linear-gradient(0deg, rgba(184, 255, 44, 0.06) 0 1px, transparent 1px 4px),
-    var(--void);
-  border: 1px solid var(--line-strong);
-  font-family: var(--f-stencil);
-  font-weight: 800;
-  font-size: 2rem;
-  color: var(--bone);
+  justify-self: center;
+  width: min(74%, 17rem);
+  padding-top: 1.75rem; /* room for the paperclip */
+}
+
+.idcard__photos .pstack {
+  --w: 100%;
+}
+
+/* Stamped onto the card over the stack's bottom-right corner; translucent like real ink */
+.idcard__verified {
+  position: absolute;
+  right: -1rem;
+  bottom: 1.4rem;
+  z-index: 80;
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.idcard__verified .stamp {
+  rotate: -11deg;
+}
+
+.idcard__status {
+  position: relative;
+  z-index: 75;
+  justify-self: center;
+  width: min(84%, 18rem);
+  margin-top: -2.25rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--void);
+  border: 1px solid var(--acid);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.55);
+  rotate: 1.5deg;
 }
 
 .idcard__rows {
   display: grid;
   gap: 0.55rem;
+  margin-top: 1.25rem;
 }
 
 .idcard__row {

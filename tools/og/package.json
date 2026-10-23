@@ -1,12 +1,14 @@
 {
   "name": "lehlanyaverse-og",
   "private": true,
-  "description": "Renders Open Graph preview images (1200x630) from site/.../data/Intel.kt",
+  "description": "Renders Open Graph preview images (1200x630) from site/.../data/Intel.kt, and optimises the operator photos",
   "type": "module",
   "scripts": {
-    "og": "node render.mjs"
+    "og": "node render.mjs",
+    "photos": "node photos.mjs"
   },
   "devDependencies": {
-    "playwright-core": "1.56.1"
+    "playwright-core": "1.56.1",
+    "sharp": "0.34.4"
   }
 }

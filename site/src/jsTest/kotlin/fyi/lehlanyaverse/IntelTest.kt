@@ -54,6 +54,17 @@ class IntelTest {
     }
 
     @Test
+    fun operatorPhotosAreComplete() {
+        val photos = Intel.operator.photos
+        assertTrue(photos.isNotEmpty(), "The ID card needs at least one photo")
+        photos.forEach {
+            assertTrue(it.alt.isNotBlank(), "Photo ${it.src} needs alt text")
+            assertTrue(it.caption.isNotBlank(), "Photo ${it.src} needs a caption")
+            assertTrue(it.src.startsWith("/") && it.src.endsWith(".jpg"), "Photo ${it.src} should be a site-relative .jpg")
+        }
+    }
+
+    @Test
     fun screenshotsHaveAltText() {
         Intel.operations.mapNotNull { it.screenshot }.forEach {
             assertTrue(it.alt.isNotBlank(), "Screenshot ${it.src} needs alt text")

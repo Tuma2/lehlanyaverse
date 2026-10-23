@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 96" fill="none">
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0.2">
+      <stop offset="0" stop-color="#6d7275"/>
+      <stop offset="0.35" stop-color="#e9ecec"/>
+      <stop offset="0.55" stop-color="#9aa0a2"/>
+      <stop offset="1" stop-color="#4f5456"/>
+    </linearGradient>
+  </defs>
+  <!-- Cast shadow, offset down-right -->
+  <path d="M27 22 V74 a9 9 0 0 1 -18 0 V16 a6 6 0 0 1 12 0 V68 a3 3 0 0 1 -6 0 V26"
+        stroke="#000" stroke-opacity="0.35" stroke-width="3.6" stroke-linecap="round" transform="translate(2.5 3)"/>
+  <!-- Wire: outer loop, inner loop, tail -->
+  <path d="M27 22 V74 a9 9 0 0 1 -18 0 V16 a6 6 0 0 1 12 0 V68 a3 3 0 0 1 -6 0 V26"
+        stroke="url(#steel)" stroke-width="3.2" stroke-linecap="round"/>
+  <!-- Specular highlight along the outer bend -->
+  <path d="M10.5 70 V18 a4.5 4.5 0 0 1 4 -4.4" stroke="#fff" stroke-opacity="0.55" stroke-width="0.9" stroke-linecap="round"/>
+</svg>
