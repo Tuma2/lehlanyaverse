@@ -5,6 +5,10 @@ import androidx.compose.runtime.LaunchedEffect
 import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.core.isExporting
 import com.varabyte.kobweb.core.layout.Layout
+import fyi.lehlanyaverse.components.fx.DeployFlash
+import fyi.lehlanyaverse.components.fx.Reticle
+import fyi.lehlanyaverse.components.fx.SmoothScroll
+import fyi.lehlanyaverse.components.fx.parallaxLayer
 import kotlinx.browser.document
 import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Div
@@ -19,6 +23,7 @@ fun PageLayout(content: @Composable () -> Unit) {
     // (never during export, or the class would be baked into the static HTML)
     LaunchedEffect(Unit) {
         if (!AppGlobals.isExporting) document.documentElement?.classList?.add("js-ready")
+        SmoothScroll.init()
     }
 
     A("#main", { classes("skip-link") }) { Text("Skip to dossier") }
@@ -29,11 +34,19 @@ fun PageLayout(content: @Composable () -> Unit) {
         Div({ classes("wrap") }) { content() }
     }
     SiteFooter()
+    DeployFlash.Overlay()
+    Reticle()
 }
 
 @Composable
 private fun FxLayers() {
+    // Map and grid sit at different depths beneath the dossier, so they drift by different amounts
+    val drift = mapOf("fx--grid" to 20.0, "fx--topo" to 36.0)
     listOf("fx--grid", "fx--topo", "fx--vignette", "fx--scan", "fx--grain").forEach { layer ->
-        Div({ classes("fx", layer); attr("aria-hidden", "true") })
+        Div({
+            classes("fx", layer)
+            attr("aria-hidden", "true")
+            drift[layer]?.let { parallaxLayer(it) }
+        })
     }
 }

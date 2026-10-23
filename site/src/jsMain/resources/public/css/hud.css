@@ -76,11 +76,17 @@
   --gutter: clamp(1rem, 4vw, 2.5rem);
   --maxw: 88rem;
   --header-h: 3.75rem;
+  --telemetry-h: 1.5rem; /* progress + coordinates strip under the header bar */
 
   /* motion */
   --t-fast: 0.15s;
   --t-med: 0.35s;
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* cursor (section 8c): 32x32 crosshair, open centre + 2px dot, 1px dark outline so it reads on paper and panels.
+     Inline data URIs: no request, and the CSP's img-src allows data: */
+  --cursor-aim: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%23050604' stroke-width='4'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%23050604'/%3E%3Cpath d='M16 3v9M16 20v9M3 16h9M20 16h9' stroke='%23b8ff2c' stroke-width='2'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%23b8ff2c'/%3E%3C/svg%3E");
+  --cursor-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%23050604' stroke-width='4'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%23050604'/%3E%3Cpath d='M16 3v9M16 20v9M3 16h9M20 16h9' stroke='%23ff6a13' stroke-width='2'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%23ff6a13'/%3E%3C/svg%3E");
 }
 
 /* 3. BASE --------------------------------------------------------------- */
@@ -98,7 +104,7 @@ html {
   font-family: var(--f-mono);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: calc(var(--header-h) + 1rem);
+  scroll-padding-top: calc(var(--header-h) + var(--telemetry-h) + 1rem);
 }
 
 body {
@@ -2250,6 +2256,525 @@ html[data-flipped] .pstack__hint {
   right: 1.5rem;
   bottom: 1.5rem;
   pointer-events: none;
+}
+
+/* 8b. SCROLL FX: components/fx (each one switchable in Fx.kt) ------------ */
+
+/* Smooth scroll: vendored from lenis@1.3.26/dist/lenis.css (the CSP allows no third-party stylesheets) */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+/* Lenis animates the scroll itself; native smooth scrolling on top would fight it */
+html.lenis {
+  scroll-behavior: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+
+/* A jump focuses the section it lands on; the heading right there already shows where you are */
+section[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Telemetry strip: MISSION PROGRESS + live coordinates */
+.telemetry {
+  position: relative;
+  border-top: 1px solid var(--line);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.telemetry__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: var(--telemetry-h);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Sits on the header's bottom border */
+.telemetry__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: rgba(184, 255, 44, 0.08);
+}
+
+.telemetry__fill {
+  height: 100%;
+  background: var(--acid);
+  box-shadow: 0 0 8px rgba(184, 255, 44, 0.55);
+  transform: scaleX(0);
+  transform-origin: left;
+  will-change: transform; /* own layer: filling it every frame never repaints the header */
+}
+
+/* Fixed-width readouts: a changing digit never reflows anything around it */
+.telemetry__pct,
+.telemetry__ll,
+.telemetry__grid {
+  display: inline-block;
+  contain: paint; /* not layout: that would drop the baseline and misalign the readout with its label */
+}
+
+.telemetry__pct {
+  color: var(--acid);
+}
+
+.telemetry__ll {
+  color: var(--bone);
+}
+
+.telemetry__grid {
+  display: none;
+  margin-left: 1.25em;
+  color: var(--olive-3);
+}
+
+@media (max-width: 25.99rem) {
+  .telemetry__label { display: none; }
+}
+
+@media (min-width: 48rem) {
+  .telemetry__grid { display: inline-block; }
+}
+
+/* Sector tracker: waypoint rail on the right edge, wide screens only */
+.tracker {
+  display: none;
+}
+
+@media (min-width: 80rem) {
+  .tracker {
+    --step: 2.5rem;
+    display: block;
+    position: fixed;
+    right: 0.75rem;
+    top: 50%;
+    z-index: 55;
+    translate: 0 -50%;
+  }
+}
+
+.tracker__list {
+  position: relative;
+}
+
+/* The rail itself, through the middle of the ticks */
+.tracker__list::before {
+  content: "";
+  position: absolute;
+  right: 0.6rem;
+  top: calc(var(--step) / 2);
+  bottom: calc(var(--step) / 2);
+  width: 1px;
+  background: var(--line-strong);
+}
+
+.tracker__item {
+  height: var(--step);
+}
+
+/* Only the waypoint diamond takes the pointer: the label area beside it sits over the dossier */
+.tracker__link {
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  height: 100%;
+  color: var(--dim);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+}
+
+.tracker__label {
+  display: flex;
+  gap: 0.6em;
+  padding: 0.15rem 0.4rem;
+}
+
+.tracker__name,
+.tracker__num {
+  opacity: 0;
+  transition: opacity var(--t-fast);
+}
+
+.tracker__name {
+  display: none;
+}
+
+.tracker__link:hover .tracker__label {
+  background: rgba(5, 6, 4, 0.9);
+  color: var(--bone);
+}
+
+.tracker__link:hover .tracker__name {
+  display: inline;
+  opacity: 1;
+}
+
+.tracker__link:hover .tracker__num,
+.tracker__item.is-current .tracker__num {
+  opacity: 1;
+}
+
+.tracker__item.is-current .tracker__link {
+  color: var(--acid);
+}
+
+/* Waypoint: a small diamond on the rail */
+.tracker__tick {
+  display: grid;
+  place-items: center;
+  width: 1.2rem;
+  height: 100%;
+  pointer-events: auto;
+}
+
+.tracker__tick::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--void);
+  border: 1px solid var(--olive-3);
+  rotate: 45deg;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+
+.tracker__item.is-current .tracker__tick::before,
+.tracker__link:hover .tracker__tick::before {
+  background: var(--acid);
+  border-color: var(--acid);
+}
+
+/* Bracket reticle locked onto the current waypoint; slides between them */
+.tracker__reticle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.2rem;
+  height: var(--step);
+  transform: translateY(calc(var(--cur, 0) * var(--step)));
+  pointer-events: none;
+}
+
+.tracker__reticle::before,
+.tracker__reticle::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 0.55rem);
+  width: 0.3rem;
+  height: 1.1rem;
+  border: 1.5px solid var(--acid);
+}
+
+.tracker__reticle::before {
+  left: -0.1rem;
+  border-right: 0;
+}
+
+.tracker__reticle::after {
+  right: -0.1rem;
+  border-left: 0;
+}
+
+/* Deploy flash: one line + a scanline sweep, ~300ms, before a nav jump (never rendered without motion) */
+.deploy-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  overflow: hidden;
+  animation: deploy-flash 0.32s linear both;
+}
+
+.deploy-flash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 2px, rgba(0, 0, 0, 0.35) 2px 3px),
+    rgba(5, 6, 4, 0.35);
+}
+
+.deploy-flash::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 35vh;
+  background: linear-gradient(to bottom, transparent, rgba(184, 255, 44, 0.08) 75%, rgba(184, 255, 44, 0.45) 99%, transparent);
+  transform: translateY(-35vh);
+  animation: deploy-sweep 0.32s cubic-bezier(0.5, 0, 0.5, 1) both;
+}
+
+.deploy-flash__line {
+  position: relative;
+  z-index: 1;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--acid);
+  background: rgba(5, 6, 4, 0.92);
+  color: var(--acid);
+  font: 700 clamp(0.7rem, 2.4vw, 0.95rem) / 1.4 var(--f-mono);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.deploy-flash__chev {
+  color: var(--orange);
+}
+
+@keyframes deploy-flash {
+  0% { opacity: 0; }
+  15%, 70% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes deploy-sweep {
+  to { transform: translateY(100vh); }
+}
+
+/* Sector line: "SECTOR 03 // SERVICE RECORD" across the top of a section heading */
+.sec-head__sector {
+  --ls: 0.16em;
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.6rem;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: var(--ls);
+  color: var(--acid);
+  white-space: nowrap;
+}
+
+.sec-head__caret {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 0.2em;
+  background: var(--acid);
+}
+
+@media (max-width: 29.99rem) {
+  .sec-head__sector {
+    --ls: 0.1em;
+    font-size: 0.6875rem;
+  }
+}
+
+/* Declassify: bars and the stamp are positioned here; they only cover anything on armed cards (below) */
+.declass {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.declass-stamp {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.9rem;
+  z-index: 3;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.declass-stamp .stamp {
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  rotate: -7deg;
+}
+
+/* Parallax: background layers are oversized by their drift so their edges never show */
+.fx--grid { bottom: -24px; }
+.fx--topo { bottom: -40px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js-ready .fx--grid,
+  .js-ready .fx--topo,
+  .fx-drift {
+    will-change: translate;
+  }
+
+  .tracker__reticle {
+    transition: transform 0.45s var(--ease-out);
+  }
+
+  /* Typing: text revealed with clip-path and the cursor carried along with transform (no layout per step) */
+  .fx-armed .sec-head__sector-text {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .fx-armed .sec-head__caret {
+    transform: translateX(calc(var(--n) * -1 * (1ch + var(--ls))));
+  }
+
+  .fx-armed.is-seen .sec-head__sector-text {
+    animation: sector-type 0.9s steps(var(--n), end) 0.15s both;
+  }
+
+  /* Blinks three times once typed, then holds solid: seven cursors blinking forever would be noise */
+  .fx-armed.is-seen .sec-head__caret {
+    animation:
+      sector-caret 0.9s steps(var(--n), end) 0.15s both,
+      blink 1s steps(1) 1.05s 3;
+  }
+
+  /* Declassify: each bar wipes off left to right, top line first; then the stamp lands */
+  .fx-armed .declass::after {
+    content: "";
+    position: absolute;
+    inset: 0.05em -0.25em;
+    z-index: 2;
+    background: #000;
+    box-shadow: inset 0 0 0 1px rgba(228, 223, 204, 0.06);
+    transform-origin: right;
+  }
+
+  .fx-armed.is-seen .declass::after {
+    transform: scaleX(0);
+    transition: transform 0.4s cubic-bezier(0.7, 0, 0.3, 1) calc(0.15s + var(--i, 0) * 0.14s);
+  }
+
+  .fx-armed .declass-stamp .stamp {
+    opacity: 0;
+  }
+
+  .fx-armed.is-seen .declass-stamp .stamp {
+    animation: stamp-thump 0.32s cubic-bezier(0.3, 0, 0.4, 1) 0.75s both;
+  }
+}
+
+@keyframes sector-type {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes sector-caret {
+  from { transform: translateX(calc(var(--n) * -1 * (1ch + var(--ls)))); }
+  to { transform: none; }
+}
+
+@keyframes stamp-thump {
+  0% { opacity: 0; scale: 1.8; }
+  70% { opacity: 1; scale: 0.94; }
+  100% { opacity: 1; scale: 1; }
+}
+
+/* 8c. CURSOR: crosshair for mouse/trackpad (touch untouched) + fx/Reticle.kt brackets */
+@media (hover: hover) and (pointer: fine) {
+  /* Set once and inherited, so nested text (a <time> inside a paragraph) follows its block. Hotspot: exact centre. */
+  html {
+    cursor: var(--cursor-aim) 16 16, crosshair;
+  }
+
+  /* Body copy keeps the I-beam, so selecting text still feels like text */
+  /* (List items only when they hold text: dossier cards and nav entries are list items too) */
+  :is(p, dd, blockquote, input, textarea, [contenteditable], li:not(:has(> :is(article, section, aside, div, a)))) {
+    cursor: text;
+  }
+
+  /* Anything clickable: the orange "lock" crosshair (also what you get if JS never runs) */
+  :is(a[href], button, summary, label[for], [role="button"], .redact, .pstack__btn, .tracker__link) {
+    cursor: var(--cursor-lock) 16 16, pointer;
+  }
+}
+
+/* Target-lock brackets: four corners placed with transforms only (Reticle.kt); purely decorative */
+.reticle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 270;
+  color: var(--acid);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.12s;
+}
+
+.reticle.is-on {
+  opacity: 1;
+}
+
+/* Off the window, or over body copy (the I-beam is the cursor there) */
+.reticle.is-out,
+.reticle.is-text {
+  opacity: 0;
+}
+
+.reticle.is-locked {
+  color: var(--orange);
+}
+
+.reticle__corner,
+.reticle__label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+/* 8px L-brackets with a dark outline, like the crosshair, so they read on paper and on panels */
+.reticle__corner {
+  width: 8px;
+  height: 8px;
+  border: 0 solid currentColor;
+  filter: drop-shadow(0 0 1px #050604) drop-shadow(0 0 1px #050604);
+}
+
+.reticle__corner--tl { border-top-width: 2px; border-left-width: 2px; }
+.reticle__corner--tr { border-top-width: 2px; border-right-width: 2px; }
+.reticle__corner--bl { border-bottom-width: 2px; border-left-width: 2px; }
+.reticle__corner--br { border-bottom-width: 2px; border-right-width: 2px; }
+
+.reticle__label {
+  padding: 0.1rem 0.35rem;
+  border: 1px solid currentColor;
+  background: rgba(5, 6, 4, 0.92);
+  font: 700 0.625rem / 1.4 var(--f-mono);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+
+.reticle.is-locked .reticle__label {
+  opacity: 1;
 }
 
 /* 9. MOTION: only when the visitor hasn't asked for less ----------------- */

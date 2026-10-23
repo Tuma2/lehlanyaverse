@@ -1,6 +1,7 @@
 package fyi.lehlanyaverse.components.sections
 
 import androidx.compose.runtime.Composable
+import fyi.lehlanyaverse.components.fx.parallax
 import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Deco
 import fyi.lehlanyaverse.components.hud.Panel
@@ -79,7 +80,7 @@ private fun IdCard() {
         Tape("right")
         PanelBar("ID" to "OP-0001", "CLR" to op.clearance)
         Div({ classes("idcard") }) {
-            Div({ classes("idcard__photos") }) {
+            Div({ classes("idcard__photos"); parallax(0.04) }) {
                 PolaroidStack(op.photos, label = "operator photo")
                 Span({ classes("idcard__verified"); attr("aria-hidden", "true") }) {
                     Stamp("ID verified", StampInk.ACID, small = true)
@@ -95,7 +96,7 @@ private fun IdCard() {
                 IdRow("Grid") { Text(op.coordinates) }
             }
         }
-        Div({ classes("hero__stamps") }) {
+        Div({ classes("hero__stamps"); parallax(0.07) }) {
             Stamp("Classified", StampInk.RED, small = true, struck = true)
             Stamp("Declassified", StampInk.ACID, small = true)
         }

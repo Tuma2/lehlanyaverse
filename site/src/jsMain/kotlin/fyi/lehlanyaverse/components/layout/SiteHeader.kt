@@ -9,6 +9,8 @@ import androidx.compose.runtime.setValue
 import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.core.isExporting
 import com.varabyte.kobweb.navigation.Anchor
+import fyi.lehlanyaverse.components.fx.Telemetry
+import fyi.lehlanyaverse.components.fx.scrollArea
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Div
@@ -50,6 +52,7 @@ fun SiteHeader() {
                 MobileMenu()
             }
         }
+        Telemetry()
     }
 }
 
@@ -57,6 +60,7 @@ fun SiteHeader() {
 private fun NavLink(index: Int, id: String, label: String, onClick: (() -> Unit)? = null) {
     A("/#$id", {
         classes("nav__link")
+        attr("data-deploy", "")
         onClick?.let { cb -> onClick { cb() } }
     }) {
         Span({ attr("aria-hidden", "true") }) { Text("0${index + 1}") }
@@ -73,7 +77,7 @@ private fun MobileMenu() {
         ref { el -> details = el; onDispose { details = null } }
     }) {
         TagElement<HTMLElement>("summary", null) { Text("MENU") }
-        Div({ classes("nav-menu__panel") }) {
+        Div({ classes("nav-menu__panel"); scrollArea() }) {
             Ul({ attr("role", "list") }) {
                 dossierSections.forEachIndexed { i, (id, label) ->
                     Li { NavLink(i, id, label) { details?.open = false } }

@@ -2,6 +2,7 @@ package fyi.lehlanyaverse.pages
 
 import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.core.Page
+import fyi.lehlanyaverse.components.fx.SectorTracker
 import fyi.lehlanyaverse.components.layout.SITE_NAME
 import fyi.lehlanyaverse.components.layout.PersonJsonLd
 import fyi.lehlanyaverse.components.layout.Seo
@@ -33,4 +34,5 @@ fun HomePage() {
     ActiveOperations()
     FieldIntel()
     Comms()
+    SectorTracker()
 }

@@ -89,6 +89,16 @@ It writes 600×600 `.webp` + `.jpg` pairs to `public/images/` with all metadata 
 stripped. Commit only those outputs, not the originals. The "tap to flip" hint hides after the first flip;
 `localStorage.removeItem("lv.flipped")` brings it back.
 
+### Scroll effects
+
+Smooth wheel scrolling ([Lenis](https://github.com/darkroomengineering/lenis), touch stays native) and the
+scroll-driven HUD effects (mission progress bar, sector tracker, deploy flash, declassify-on-entry, typed sector
+headers, live coordinates, parallax) each have an on/off flag in
+[`components/fx/Fx.kt`](site/src/jsMain/kotlin/fyi/lehlanyaverse/components/fx/Fx.kt). Set one to `false` to
+remove that effect entirely. Mouse and trackpad users also get a crosshair cursor (CSS, in `hud.css`) with
+target-lock brackets that frame links and buttons (`CURSOR_FX`; turning it off keeps the plain crosshair). All of them are off for visitors who prefer reduced motion, and the pre-rendered
+pages always hold the finished state, so nothing depends on JavaScript to be readable.
+
 Skills, experience, certifications and contact links work the same way (`loadout`, `serviceRecord`,
 `commendations`, `comms`). Proficiency values run from 0 to 100.
 
@@ -103,6 +113,7 @@ site/
   src/jsMain/kotlin/fyi/lehlanyaverse/
     data/                       Intel.kt (content) + Model.kt (types)
     components/hud/             HUD primitives: Panel, Stamp, Meter, StatusTag, Redacted, Polaroid…
+    components/fx/              smooth scroll (Lenis) + scroll effects, one flag each in Fx.kt
     components/layout/          PageLayout, header + mission clock, ticker, footer, Seo
     components/sections/        the seven dossier sections + operation debrief + 404
     pages/                      routes: /, /operations/{slug}, /404

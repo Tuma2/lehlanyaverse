@@ -132,6 +132,8 @@ kotlin {
                 implementation(libs.compose.runtime)
                 implementation(libs.compose.html.core)
                 implementation(libs.kobweb.core)
+                // Smooth wheel scrolling (components/fx/SmoothScroll.kt). Exact pin, bundled into the app JS.
+                implementation(npm("lenis", "1.3.26"))
             }
         }
         jsTest.dependencies {

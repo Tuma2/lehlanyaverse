@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.navigation.Anchor
 import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Chips
+import fyi.lehlanyaverse.components.hud.DeclassStamp
 import fyi.lehlanyaverse.components.hud.OpLinks
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
@@ -11,6 +12,8 @@ import fyi.lehlanyaverse.components.hud.SectionHead
 import fyi.lehlanyaverse.components.hud.StatusTag
 import fyi.lehlanyaverse.components.hud.Tape
 import fyi.lehlanyaverse.components.hud.Tilt
+import fyi.lehlanyaverse.components.hud.declassLine
+import fyi.lehlanyaverse.components.hud.declassify
 import fyi.lehlanyaverse.data.Intel
 import fyi.lehlanyaverse.data.OpStatus
 import fyi.lehlanyaverse.data.Operation
@@ -46,15 +49,15 @@ private fun OpCard(op: Operation, index: Int) {
         },
         tilt = if (index % 2 == 0) Tilt.LEFT else Tilt.RIGHT,
         extraClasses = listOf("op"),
-        attrs = { attr("aria-labelledby", titleId) },
+        attrs = { attr("aria-labelledby", titleId); declassify() },
     ) {
         if (index % 2 == 1) Tape("left")
         PanelBar("OP" to (index + 1).toString().padStart(2, '0'), "FILE" to op.slug.uppercase())
         Div({ classes("op__head") }) {
-            P({ classes("op__codename", "readout") }) { Text(op.codename) }
+            P({ classes("op__codename", "readout"); declassLine(0) }) { Text(op.codename) }
             StatusTag(op.status)
         }
-        H3({ id(titleId); classes("op__title") }) {
+        H3({ id(titleId); classes("op__title"); declassLine(1) }) {
             Anchor("/operations/${op.slug}", { classes("op__link") }) { Text(op.title) }
         }
         P({ classes("op__summary") }) { Text(op.summary) }
@@ -69,5 +72,6 @@ private fun OpCard(op: Operation, index: Int) {
             }
             OpLinks(op)
         }
+        DeclassStamp()
     }
 }

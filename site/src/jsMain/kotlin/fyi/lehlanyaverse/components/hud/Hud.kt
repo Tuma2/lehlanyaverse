@@ -1,6 +1,8 @@
 package fyi.lehlanyaverse.components.hud
 
 import androidx.compose.runtime.Composable
+import fyi.lehlanyaverse.components.fx.Fx
+import fyi.lehlanyaverse.components.fx.parallax
 import fyi.lehlanyaverse.data.OpStatus
 import fyi.lehlanyaverse.data.Operation
 import org.jetbrains.compose.web.attributes.AttrsScope
@@ -52,11 +54,31 @@ fun PanelBar(vararg cells: Pair<String, String>) {
 @Composable
 fun SectionHead(number: String, title: String, kicker: String, titleId: String) {
     Div({ classes("sec-head") }) {
+        // Spans the full width above the number: it is too long to sit beside it on phones
+        if (Fx.TYPE_HEADERS) SectorLine("SECTOR $number // ${title.uppercase()}")
         Span({ classes("sec-head__num"); attr("aria-hidden", "true") }) { Text(number) }
         Div {
             Span({ classes("sec-head__kicker", "readout") }) { Text(kicker) }
             H2({ id(titleId); classes("sec-head__title") }) { Text(title) }
         }
+    }
+}
+
+/**
+ * "SECTOR 03 // SERVICE RECORD" above a section title. Types on with a block cursor when the section first
+ * scrolls into view; otherwise (no JS, reduced motion, already on screen) it is simply there. Repeats the
+ * heading, so hidden from screen readers.
+ */
+@Composable
+private fun SectorLine(text: String) {
+    Span({
+        classes("sec-head__sector")
+        attr("aria-hidden", "true")
+        style { property("--n", text.length.toString()) }
+        revealOnEntry()
+    }) {
+        Span({ classes("sec-head__sector-text") }) { Text(text) }
+        Span({ classes("sec-head__caret") })
     }
 }
 
@@ -91,6 +113,8 @@ fun Redacted(text: String) {
         classes("redact")
         tabIndex(0)
         attr("title", "Declassify")
+        // The cursor reticle labels what it locks onto; this keeps it from reading out the hidden text
+        attr("data-lock", "DECLASSIFY")
     }) { Text(text) }
 }
 
@@ -193,5 +217,34 @@ fun OpLinks(op: Operation) {
     }
     if (op.liveUrl != null) {
         ExtButton(op.liveUrl, "Live demo", BtnStyle.ORANGE, ariaLabel = "Live demo: ${op.title}")
+    }
+}
+
+/*
+ * Declassify on entry: a dossier card arrives with black bars over its key lines, which wipe away in sequence
+ * as it scrolls into view, then a DECLASSIFIED stamp lands. The pre-rendered card is already declassified
+ * (bars only exist on armed cards, see revealOnEntry), so nothing is ever hidden without JS or with reduced motion.
+ */
+
+/** Attrs for the card itself. */
+fun AttrsScope<*>.declassify() {
+    if (!Fx.DECLASSIFY) return
+    classes("declass-card")
+    revealOnEntry()
+}
+
+/** Attrs for a redacted line inside a [declassify] card. [order] staggers the wipe, top to bottom. */
+fun AttrsScope<*>.declassLine(order: Int) {
+    if (!Fx.DECLASSIFY) return
+    classes("declass")
+    style { property("--i", order.toString()) }
+}
+
+/** The stamp that lands once a [declassify] card's bars have cleared. */
+@Composable
+fun DeclassStamp() {
+    if (!Fx.DECLASSIFY) return
+    Span({ classes("declass-stamp"); attr("aria-hidden", "true"); parallax(0.05) }) {
+        Stamp("Declassified", StampInk.RED, small = true)
     }
 }

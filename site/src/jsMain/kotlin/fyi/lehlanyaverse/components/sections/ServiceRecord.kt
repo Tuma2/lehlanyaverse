@@ -3,7 +3,10 @@ package fyi.lehlanyaverse.components.sections
 import androidx.compose.runtime.Composable
 import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Chips
+import fyi.lehlanyaverse.components.hud.DeclassStamp
 import fyi.lehlanyaverse.components.hud.Deco
+import fyi.lehlanyaverse.components.hud.declassLine
+import fyi.lehlanyaverse.components.hud.declassify
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
 import fyi.lehlanyaverse.components.hud.SectionHead
@@ -45,16 +48,17 @@ private fun MissionCard(m: Mission, index: Int) {
         // Text-heavy cards stay straight: rotated body copy rasterises soft
         tilt = Tilt.NONE,
         extraClasses = listOf("mission"),
+        attrs = { declassify() },
     ) {
         PanelBar("DEBRIEF" to "M-${(index + 1).toString().padStart(3, '0')}", "UNIT" to m.unit.uppercase())
         Div({ classes("mission__head") }) {
             Div {
-                P({ classes("mission__codename") }) { Text(m.codename) }
-                H3({ classes("mission__role") }) {
+                P({ classes("mission__codename"); declassLine(0) }) { Text(m.codename) }
+                H3({ classes("mission__role"); declassLine(1) }) {
                     Text(m.role)
                     Span({ classes("mission__unit") }) { Text(" @ ${m.unit}") }
                 }
-                P({ classes("readout", "mission__dates") }) {
+                P({ classes("readout", "mission__dates"); declassLine(2) }) {
                     Time(m.startIso) { Text(m.start) }
                     Text(" → ")
                     if (ongoing) Text("PRESENT") else Time(m.endIso!!) { Text(m.end!!) }
@@ -76,5 +80,6 @@ private fun MissionCard(m: Mission, index: Int) {
             }
         }
         Chips(m.stack, "Stack used on ${m.role} at ${m.unit}")
+        DeclassStamp()
     }
 }

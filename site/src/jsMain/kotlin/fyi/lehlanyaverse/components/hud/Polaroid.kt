@@ -130,6 +130,7 @@ fun PolaroidStack(
                 Button({
                     classes("pstack__btn")
                     attr("type", "button")
+                    attr("data-lock", "FLIP PHOTO") // label for the cursor reticle (fx/Reticle.kt)
                     attr("aria-label", "Show next $label (${top + 1} of $n)")
                     ref { el -> button = el; onDispose { button = null } }
                     onClick { next() }
