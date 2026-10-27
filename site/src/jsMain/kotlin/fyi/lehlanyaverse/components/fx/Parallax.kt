@@ -8,7 +8,7 @@ import kotlin.math.abs
 /** Hard ceiling for any drift, so depth reads as texture and never as things sliding around. */
 private const val MAX_DRIFT_PX = 16.0
 
-/** Phones get half the drift: less room, and the content is closer to the eye. */
+/** Narrow windows get half the drift: less room, and the content is closer to the eye. (Touch devices get none.) */
 private const val PHONE_MAX_W = 768.0
 
 /*
@@ -24,7 +24,7 @@ private const val PHONE_MAX_W = 768.0
 fun AttrsScope<*>.parallaxLayer(maxPx: Double) {
     ref { node ->
         val el = node.unsafeCast<HTMLElement>()
-        if (!Fx.PARALLAX || !Fx.motion) return@ref onDispose { }
+        if (!Fx.PARALLAX || !Fx.motion || Fx.touchOnly) return@ref onDispose { }
         var applied = Double.NaN
         val dispose = SmoothScroll.onFrame { f ->
             val y = (-f.progress * maxPx * 10).toInt() / 10.0
@@ -45,7 +45,7 @@ fun AttrsScope<*>.parallaxLayer(maxPx: Double) {
 fun AttrsScope<*>.parallax(factor: Double) {
     ref { node ->
         val el = node.unsafeCast<HTMLElement>()
-        if (!Fx.PARALLAX || !Fx.motion) return@ref onDispose { }
+        if (!Fx.PARALLAX || !Fx.motion || Fx.touchOnly) return@ref onDispose { }
         // Own compositor layer: moving a filtered photo would otherwise repaint it every frame
         el.classList.add("fx-drift")
         val layer = Drift(el, factor)

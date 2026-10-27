@@ -68,17 +68,22 @@ fun AttrsScope<*>.litOnView() {
 /**
  * The [litOnView] behaviour for an element whose `ref` already does something else (an element keeps only one
  * ref). Returns the clean-up to call on dispose.
+ *
+ * Touch devices get `burst--steady`: no shading (short strips would flash light and dark as a thumb scrolls past
+ * them), and `is-lit` just means "on screen", which still pauses the marquees once they scroll away.
  */
 internal fun spotlight(el: Element): () -> Unit {
     if (!Fx.BURST_LIGHT || !Fx.motion) return {}
+    val steady = Fx.touchOnly
     el.classList.add("burst--live")
+    if (steady) el.classList.add("burst--steady")
     val io = IntersectionObserver({ entries, _ ->
         entries.forEach { el.classList.toggle("is-lit", it.isIntersecting as Boolean) }
-    }, js("({ rootMargin: '-20% 0px -20% 0px', threshold: 0 })"))
+    }, if (steady) js("({ threshold: 0 })") else js("({ rootMargin: '-20% 0px -20% 0px', threshold: 0 })"))
     io.observe(el)
     return {
         io.disconnect()
-        el.classList.remove("burst--live", "is-lit")
+        el.classList.remove("burst--live", "burst--steady", "is-lit")
     }
 }
 

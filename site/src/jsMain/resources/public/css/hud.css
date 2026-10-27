@@ -845,7 +845,7 @@ html[data-boot] body::after {
 /* Typewriter: single-line readouts only */
 .type {
   display: inline-block;
-  max-width: 100%;
+  max-width: calc(100% - 0.9em); /* room for the caret (0.6em + 0.15em gap): it must never wrap to a new line */
   overflow: hidden;
   white-space: nowrap;
   vertical-align: bottom;
@@ -1488,6 +1488,7 @@ html[data-flipped] .pstack__hint {
   color: var(--signal);
   font-size: var(--fs-xs);
   font-weight: 700;
+  white-space: nowrap; /* typed line + caret stay one line, so the hero never shifts when the app starts */
   --ls: 0.16em; /* also read by the typewriter (keyframes type) */
   letter-spacing: var(--ls);
 }
@@ -3180,6 +3181,19 @@ section[tabindex="-1"]:focus {
   .js-ready .hero__kicker {
     animation: project-flicker 0.9s steps(1, end) 0.15s both;
   }
+
+  /* Phones: one soft fade instead of the strobe, which reads as the whole small screen flickering */
+  @media (hover: none) and (pointer: coarse) {
+    .sec-head__sector.fx-armed.is-seen .sec-head__sector-text,
+    .sec-head:has(.sec-head__sector.is-seen) .sec-head__title,
+    .js-ready .hero__kicker {
+      animation: project-fade 0.4s ease-out 0.1s both;
+    }
+  }
+}
+
+@keyframes project-fade {
+  from { opacity: 0; }
 }
 
 @keyframes sonar-pulse {
@@ -3208,7 +3222,7 @@ section[tabindex="-1"]:focus {
  * Strengths: theme.css ("bursts"). Every piece is a .layer (components/hud/Burst.kt) with its own rotation --r
  * and opacity --o.
  * Light: litOnView() (hud/Observe.kt) toggles .is-lit as a burst enters / leaves the middle of the viewport.
- * Without it (no JS, export snapshot, reduced motion) a burst is simply lit.
+ * Without it (no JS, export snapshot, reduced motion) a burst is simply lit; touch devices (.burst--steady) too.
  */
 .burst {
   position: relative;
@@ -3237,11 +3251,11 @@ section[tabindex="-1"]:focus {
   transition: filter 0.9s var(--ease-out);
 }
 
-.burst--live:not(.is-lit) .burst__spot {
+.burst--live:not(.burst--steady, .is-lit) .burst__spot {
   opacity: 0.2;
 }
 
-.burst--live:not(.is-lit) .burst__dim {
+.burst--live:not(.burst--steady, .is-lit) .burst__dim {
   filter: brightness(var(--burst-shade)) saturate(0.5);
 }
 

@@ -62,8 +62,7 @@ object SmoothScroll {
         document.addEventListener("click", ::onClick)
 
         // Touch-only devices scroll natively either way, so Lenis would only add a per-frame loop there
-        val touchOnly = window.matchMedia("(hover: none) and (pointer: coarse)").matches
-        if (Fx.SMOOTH_SCROLL && Fx.motion && !touchOnly) {
+        if (Fx.SMOOTH_SCROLL && Fx.motion && !Fx.touchOnly) {
             lenis = Lenis(jsObject {
                 lerp = 0.09            // weighty: the page keeps travelling a beat after the wheel stops
                 wheelMultiplier = 0.9

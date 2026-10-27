@@ -45,4 +45,11 @@ object Fx {
     /** False during the export snapshot and for visitors who prefer reduced motion: gates every motion effect. */
     val motion: Boolean
         get() = !AppGlobals.isExporting && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+    /**
+     * Touch-only device (phone, tablet). These scroll natively, and the URL bar resizes the viewport as it slides,
+     * so scroll-linked effects that move or relight things (smooth scroll, parallax, burst shading) stay off there.
+     */
+    val touchOnly: Boolean
+        get() = window.matchMedia("(hover: none) and (pointer: coarse)").matches
 }

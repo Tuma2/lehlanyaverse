@@ -58,13 +58,13 @@ object Intel {
         ),
         secondary = listOf(
             Skill("Kotlin", 50),
-            Skill("Python", 65),
+            Skill("Python", 85),
         ),
         sidearms = listOf(
-            Skill("JavaScript", 55),
+            Skill("JavaScript", 65),
             Skill("Angular", 55),
             Skill("React", 45),
-            Skill("FastAPI", 45),
+            Skill("FastAPI", 75),
             Skill("Django", 40),
         ),
         equipment = listOf(
