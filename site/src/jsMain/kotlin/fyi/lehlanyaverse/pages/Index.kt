@@ -12,6 +12,7 @@ import fyi.lehlanyaverse.components.sections.Commendations
 import fyi.lehlanyaverse.components.sections.FieldIntel
 import fyi.lehlanyaverse.components.sections.Loadout
 import fyi.lehlanyaverse.components.sections.OperatorProfile
+import fyi.lehlanyaverse.components.sections.SectorBreak
 import fyi.lehlanyaverse.components.sections.ServiceRecord
 import fyi.lehlanyaverse.data.Intel
 
@@ -28,11 +29,17 @@ fun HomePage() {
     )
     PersonJsonLd()
     OperatorProfile()
+    SectorBreak(1)
     Loadout()
+    SectorBreak(2)
     ServiceRecord()
+    SectorBreak(3)
     Commendations()
+    SectorBreak(4)
     ActiveOperations()
+    SectorBreak(5)
     FieldIntel()
+    SectorBreak(6)
     Comms()
     SectorTracker()
 }

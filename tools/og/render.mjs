@@ -37,26 +37,26 @@ const card = ({ kicker, title, sub, tag, tagColor }) => `<!doctype html><html><h
 @font-face{font-family:S;src:url(${font("big-shoulders-stencil.woff2")});font-weight:800}
 @font-face{font-family:M;src:url(${font("jetbrains-mono.woff2")});font-weight:100 800}
 *{margin:0;box-sizing:border-box}
-body{width:1200px;height:630px;overflow:hidden;background:#050604;color:#e4dfcc;font-family:M;position:relative}
+body{width:1200px;height:630px;overflow:hidden;background:#07090b;color:#d6dee4;font-family:M;position:relative}
 .topo{position:absolute;inset:0;background:url(${img("topo.svg")}) center/cover;opacity:.16}
-.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(125,140,85,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(125,140,85,.12) 1px,transparent 1px);background-size:56px 56px}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(163,184,200,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(163,184,200,.12) 1px,transparent 1px);background-size:56px 56px}
 .scan{position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(0,0,0,.3) 2px 3px)}
-.frame{position:absolute;inset:40px;border:1px solid rgba(228,223,204,.18)}
+.frame{position:absolute;inset:40px;border:1px solid rgba(214,222,228,.18)}
 .frame:before{content:"";position:absolute;inset:-8px;background:
- linear-gradient(#ff6a13,#ff6a13) top left/48px 5px,linear-gradient(#ff6a13,#ff6a13) top left/5px 48px,
- linear-gradient(#ff6a13,#ff6a13) top right/48px 5px,linear-gradient(#ff6a13,#ff6a13) top right/5px 48px,
- linear-gradient(#ff6a13,#ff6a13) bottom left/48px 5px,linear-gradient(#ff6a13,#ff6a13) bottom left/5px 48px,
- linear-gradient(#ff6a13,#ff6a13) bottom right/48px 5px,linear-gradient(#ff6a13,#ff6a13) bottom right/5px 48px;background-repeat:no-repeat}
-.bar{position:absolute;left:80px;right:80px;top:78px;display:flex;justify-content:space-between;font-size:20px;font-weight:700;letter-spacing:.18em;color:#a19e8b;border-bottom:1px dashed rgba(228,223,204,.3);padding-bottom:14px}
-.bar b{color:#b8ff2c}
-.kicker{position:absolute;left:80px;top:160px;font-size:24px;font-weight:700;letter-spacing:.14em;color:#b8ff2c}
+ linear-gradient(#a3b8c8,#a3b8c8) top left/48px 5px,linear-gradient(#a3b8c8,#a3b8c8) top left/5px 48px,
+ linear-gradient(#a3b8c8,#a3b8c8) top right/48px 5px,linear-gradient(#a3b8c8,#a3b8c8) top right/5px 48px,
+ linear-gradient(#a3b8c8,#a3b8c8) bottom left/48px 5px,linear-gradient(#a3b8c8,#a3b8c8) bottom left/5px 48px,
+ linear-gradient(#a3b8c8,#a3b8c8) bottom right/48px 5px,linear-gradient(#a3b8c8,#a3b8c8) bottom right/5px 48px;background-repeat:no-repeat}
+.bar{position:absolute;left:80px;right:80px;top:78px;display:flex;justify-content:space-between;font-size:20px;font-weight:700;letter-spacing:.18em;color:#8f9daa;border-bottom:1px dashed rgba(214,222,228,.3);padding-bottom:14px}
+.bar b{color:#7cffb2}
+.kicker{position:absolute;left:80px;top:160px;font-size:24px;font-weight:700;letter-spacing:.14em;color:#7cffb2}
 h1{position:absolute;left:76px;right:330px;top:205px;font-family:D;font-weight:900;font-size:${title.length > 26 ? 96 : title.length > 16 ? 112 : 140}px;line-height:.86;text-transform:uppercase}
 .sub{position:absolute;left:80px;bottom:84px;display:flex;gap:16px;align-items:center}
-.chip{font-family:D;font-weight:900;font-size:34px;padding:8px 18px;background:#ff6a13;color:#050604;text-transform:uppercase}
+.chip{font-family:D;font-weight:900;font-size:34px;padding:8px 18px;background:#a3b8c8;color:#07090b;text-transform:uppercase}
 .tag{font-size:22px;font-weight:800;letter-spacing:.14em;padding:10px 16px;border:3px solid ${tagColor};color:${tagColor}}
 .reticle{position:absolute;right:90px;bottom:150px;width:200px;height:200px;background:url(${img("reticle.svg")}) center/contain no-repeat}
-.stamp{position:absolute;right:84px;top:150px;font-family:S;font-weight:800;font-size:46px;letter-spacing:.1em;color:#b8ff2c;border:6px solid #b8ff2c;padding:4px 18px;transform:rotate(-7deg)}
-.hazard{position:absolute;left:0;right:0;bottom:0;height:16px;background:repeating-linear-gradient(-45deg,#e8c547 0 18px,#050604 18px 36px)}
+.stamp{position:absolute;right:84px;top:150px;font-family:S;font-weight:800;font-size:46px;letter-spacing:.1em;color:#7cffb2;border:6px solid #7cffb2;padding:4px 18px;transform:rotate(-7deg)}
+.hazard{position:absolute;left:0;right:0;bottom:0;height:16px;background:repeating-linear-gradient(-45deg,#e2a43a 0 18px,#07090b 18px 36px)}
 </style></head><body>
 <div class="grid"></div><div class="topo"></div>
 <div class="frame"></div>
@@ -80,15 +80,15 @@ async function render(html, file, size) {
   await page.screenshot({ path: file });
 }
 
-await render(card({ kicker: "OPERATOR PROFILE", title: name, sub: `${role} // ${specialty}`, tag: "ACTIVE DUTY", tagColor: "#b8ff2c" }),
+await render(card({ kicker: "OPERATOR PROFILE", title: name, sub: `${role} // ${specialty}`, tag: "ACTIVE DUTY", tagColor: "#7cffb2" }),
   join(pub, "og/og-default.png"));
 for (const op of operations) {
-  const color = op.status === "DEPLOYED" ? "#b8ff2c" : op.status === "IN PROGRESS" ? "#ff6a13" : "#e8c547";
+  const color = op.status === "DEPLOYED" ? "#7cffb2" : op.status === "IN PROGRESS" ? "#a3b8c8" : "#e2a43a";
   await render(card({ kicker: `OPERATION DEBRIEF // ${op.codename}`, title: op.title, sub: "Active operation", tag: op.status, tagColor: color }),
     join(pub, `og/${op.slug}.png`));
 }
 // Home-screen icon from the favicon artwork
-await render(`<!doctype html><body style="margin:0;background:#050604"><img src="${dataUri(join(pub, "favicon.svg"), "image/svg+xml")}" width="180" height="180">`,
+await render(`<!doctype html><body style="margin:0;background:#07090b"><img src="${dataUri(join(pub, "favicon.svg"), "image/svg+xml")}" width="180" height="180">`,
   join(pub, "apple-touch-icon.png"), { width: 180, height: 180 });
 
 await browser.close();

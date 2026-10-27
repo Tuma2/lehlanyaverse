@@ -14,6 +14,10 @@ data class Operator(
     val location: String,
     val coordinates: String,
     val status: String,
+    /** Drives the availability beacon (profile + header): a pulsing "OPEN TO OPPORTUNITIES", or a dim "ON ASSIGNMENT". */
+    val openToOpportunities: Boolean,
+    /** Tooltip on the beacon while [openToOpportunities] is true. */
+    val availabilityNote: String,
     val bio: List<String>,
     val clearance: String,
     /** Headline numbers for the profile card, e.g. Stat("4+", "Years in the field"). */
@@ -60,16 +64,35 @@ data class Mission(
     val stack: List<String>,
 )
 
-enum class CommendationKind(val label: String) {
-    CERTIFICATION("CERTIFICATION"),
-    EDUCATION("EDUCATION"),
+/**
+ * What the paper actually is. A completion or training certificate is not an accredited certification, so it is
+ * labelled as such ([corner] is the badge's short tag, [dated] the verb before the year).
+ */
+enum class CommendationKind(val label: String, val corner: String, val dated: String) {
+    CERTIFICATION("CERTIFICATION", "CERT", "Awarded"),
+    COMPLETION("COMPLETION CERTIFICATE", "COMPL", "Completed"),
+    TRAINING("TRAINING CERTIFICATE", "TRAIN", "Trained"),
+    EDUCATION("EDUCATION", "EDU", "Awarded"),
+}
+
+/** COMMENDATIONS is split into these, in this order. */
+enum class CommendationGroup(val label: String) {
+    SECURITY("Security & Compliance"),
+    CLOUD("Cloud & Engineering"),
+    EDUCATION("Education");
+
+    /** Shown on the medal wall as the "Security clearance" cluster. */
+    val isClearance: Boolean get() = this == SECURITY
 }
 
 data class Commendation(
     val title: String,
-    val issuer: String,
+    /** Null shows a TODO marker until it is filled in. */
+    val issuer: String?,
     val kind: CommendationKind,
-    val awarded: Int,
+    val group: CommendationGroup,
+    /** Year; null shows a TODO marker until it is filled in. */
+    val awarded: Int?,
     val expires: Int? = null,
     val credentialUrl: String? = null,
 )

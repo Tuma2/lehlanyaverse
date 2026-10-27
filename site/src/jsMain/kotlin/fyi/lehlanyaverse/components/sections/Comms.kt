@@ -25,7 +25,7 @@ import org.jetbrains.compose.web.dom.Ul
 fun Comms() {
     Section({ id("comms"); attr("aria-labelledby", "comms-title") }) {
         SectionHead("07", "Comms", "Contact // open a channel", "comms-title")
-        Panel(accent = Accent.ACID, extraClasses = listOf("comms")) {
+        Panel(accent = Accent.SIGNAL, extraClasses = listOf("comms")) {
             PanelBar("CHANNELS" to "${Intel.comms.size} OPEN", "BAND" to "EMAIL + SOCIAL")
             P({ classes("comms__lede") }) {
                 Text("Hiring, collaborating or just want to talk backend systems? Pick a channel.")
@@ -45,7 +45,7 @@ fun Comms() {
                     }
                 }
             }
-            Div({ classes("comms__stamp") }) { Stamp("Transmission open", StampInk.ACID, small = true) }
+            Div({ classes("comms__stamp") }) { Stamp("Transmission open", StampInk.SIGNAL, small = true) }
         }
         Hazard()
     }

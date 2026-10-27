@@ -8,7 +8,7 @@ import org.jetbrains.compose.web.attributes.AttrsScope
 import org.w3c.dom.Element
 
 /** Minimal binding: IntersectionObserver isn't part of Kotlin/JS's bundled DOM API. */
-private external class IntersectionObserver(
+internal external class IntersectionObserver(
     callback: (entries: Array<dynamic>, observer: IntersectionObserver) -> Unit,
     options: dynamic = definedExternally,
 ) {
@@ -49,6 +49,36 @@ fun AttrsScope<*>.revealOnEntry() {
         if (!Fx.motion) return@ref onDispose { }
         Reveal.queue(el)
         onDispose { Reveal.forget(el) }
+    }
+}
+
+/**
+ * Spotlight for a burst moment: `is-lit` while any part of it is in the middle 60% of the viewport (works for
+ * bursts taller than the screen too), removed when it leaves, so CSS can fade its collage in and out of shadow.
+ * `burst--live` marks that the toggling is running; without it (export snapshot, no JS, reduced motion) a burst
+ * simply stays lit.
+ */
+fun AttrsScope<*>.litOnView() {
+    ref { el ->
+        val stop = spotlight(el)
+        onDispose { stop() }
+    }
+}
+
+/**
+ * The [litOnView] behaviour for an element whose `ref` already does something else (an element keeps only one
+ * ref). Returns the clean-up to call on dispose.
+ */
+internal fun spotlight(el: Element): () -> Unit {
+    if (!Fx.BURST_LIGHT || !Fx.motion) return {}
+    el.classList.add("burst--live")
+    val io = IntersectionObserver({ entries, _ ->
+        entries.forEach { el.classList.toggle("is-lit", it.isIntersecting as Boolean) }
+    }, js("({ rootMargin: '-20% 0px -20% 0px', threshold: 0 })"))
+    io.observe(el)
+    return {
+        io.disconnect()
+        el.classList.remove("burst--live", "is-lit")
     }
 }
 

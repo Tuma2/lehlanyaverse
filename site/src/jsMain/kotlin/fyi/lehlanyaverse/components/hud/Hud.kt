@@ -20,7 +20,7 @@ import org.w3c.dom.HTMLElement
  * HUD primitives. Each one is a thin wrapper over semantic HTML; all styling lives in public/css/hud.css.
  */
 
-enum class Accent(val cls: String?) { ORANGE(null), ACID("panel--acid"), BONE("panel--bone"), TAPE("panel--tape") }
+enum class Accent(val cls: String?) { STEEL(null), SIGNAL("panel--signal"), INK("panel--ink"), MUTED("panel--muted") }
 
 enum class Tilt(val cls: String?) { NONE(null), LEFT("tilt-l"), RIGHT("tilt-r"), HARD_RIGHT("tilt-rr") }
 
@@ -28,7 +28,7 @@ enum class Tilt(val cls: String?) { NONE(null), LEFT("tilt-l"), RIGHT("tilt-r"),
 @Composable
 fun Panel(
     tag: String = "div",
-    accent: Accent = Accent.ORANGE,
+    accent: Accent = Accent.STEEL,
     tilt: Tilt = Tilt.NONE,
     extraClasses: List<String> = emptyList(),
     attrs: (AttrsScope<HTMLElement>.() -> Unit)? = null,
@@ -55,7 +55,7 @@ fun PanelBar(vararg cells: Pair<String, String>) {
 fun SectionHead(number: String, title: String, kicker: String, titleId: String) {
     Div({ classes("sec-head") }) {
         // Spans the full width above the number: it is too long to sit beside it on phones
-        if (Fx.TYPE_HEADERS) SectorLine("SECTOR $number // ${title.uppercase()}")
+        if (Fx.PROJECTED_HEADERS) SectorLine("SECTOR $number // ${title.uppercase()}")
         Span({ classes("sec-head__num"); attr("aria-hidden", "true") }) { Text(number) }
         Div {
             Span({ classes("sec-head__kicker", "readout") }) { Text(kicker) }
@@ -65,28 +65,27 @@ fun SectionHead(number: String, title: String, kicker: String, titleId: String) 
 }
 
 /**
- * "SECTOR 03 // SERVICE RECORD" above a section title. Types on with a block cursor when the section first
- * scrolls into view; otherwise (no JS, reduced motion, already on screen) it is simply there. Repeats the
- * heading, so hidden from screen readers.
+ * "SECTOR 03 // SERVICE RECORD" above a section title, projected onto the surface: it glows, leans back and
+ * flickers on (with the title) when the section first scrolls into view; otherwise (no JS, reduced motion,
+ * already on screen) it is simply there. Repeats the heading, so hidden from screen readers.
  */
 @Composable
 private fun SectorLine(text: String) {
     Span({
         classes("sec-head__sector")
         attr("aria-hidden", "true")
-        style { property("--n", text.length.toString()) }
         revealOnEntry()
     }) {
         Span({ classes("sec-head__sector-text") }) { Text(text) }
-        Span({ classes("sec-head__caret") })
     }
 }
 
-enum class StampInk(val cls: String?) { RED(null), ACID("stamp--acid"), ORANGE("stamp--orange") }
+/** Amber for stamps by default; signal for live states only; red for CLASSIFIED only. */
+enum class StampInk(val cls: String?) { AMBER(null), SIGNAL("stamp--signal"), STEEL("stamp--steel"), CLASSIFIED("stamp--classified") }
 
 /** Rubber stamp. Decorative: anything a stamp says must also be stated in real text nearby. */
 @Composable
-fun Stamp(text: String, ink: StampInk = StampInk.RED, small: Boolean = false, struck: Boolean = false) {
+fun Stamp(text: String, ink: StampInk = StampInk.AMBER, small: Boolean = false, struck: Boolean = false) {
     Span({
         classes(*listOfNotNull("stamp", ink.cls, "stamp--sm".takeIf { small }, "stamp--void".takeIf { struck }).toTypedArray())
         attr("aria-hidden", "true")
@@ -125,11 +124,11 @@ fun TypeLine(text: String, caret: Boolean = true) {
     if (caret) Span({ classes("caret"); attr("aria-hidden", "true") })
 }
 
-enum class MeterTone(val cls: String?) { ACID(null), ORANGE("meter--orange"), TAPE("meter--tape"), BONE("meter--bone") }
+enum class MeterTone(val cls: String?) { SIGNAL(null), STEEL("meter--steel"), MUTED("meter--muted"), INK("meter--ink") }
 
 /** Segmented proficiency bar, exposed as an ARIA meter with the number also shown visually. */
 @Composable
-fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.ACID) {
+fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.SIGNAL) {
     val v = value.coerceIn(0, 100)
     Div({ classes(*listOfNotNull("meter", tone.cls).toTypedArray()); markWhenSeen() }) {
         Span({ classes("meter__label") }) { Text(label) }
@@ -178,11 +177,11 @@ fun Time(datetime: String, content: ContentBuilder<HTMLElement>) {
     TagElement<HTMLElement>("time", { attr("datetime", datetime) }, content)
 }
 
-enum class BtnStyle(val cls: String?) { ORANGE(null), ACID("btn--acid"), SOLID("btn--solid") }
+enum class BtnStyle(val cls: String?) { STEEL(null), SIGNAL("btn--signal"), SOLID("btn--solid") }
 
 /** External link styled as a button. Same tab (no surprise windows), and no referrer/opener leakage. */
 @Composable
-fun ExtButton(href: String, label: String, style: BtnStyle = BtnStyle.ORANGE, ariaLabel: String? = null) {
+fun ExtButton(href: String, label: String, style: BtnStyle = BtnStyle.STEEL, ariaLabel: String? = null) {
     A(href, {
         classes(*listOfNotNull("btn", style.cls).toTypedArray())
         attr("rel", "noopener noreferrer")
@@ -211,12 +210,12 @@ fun Deco(vararg cls: String, content: (@Composable ElementScope<HTMLElement>.() 
 @Composable
 fun OpLinks(op: Operation) {
     if (op.repoUrl != null) {
-        ExtButton(op.repoUrl, "Source", BtnStyle.ACID, ariaLabel = "Source code: ${op.title}")
+        ExtButton(op.repoUrl, "Source", BtnStyle.SIGNAL, ariaLabel = "Source code: ${op.title}")
     } else {
         Span({ classes("readout", "classified") }) { Text("SOURCE // CLASSIFIED") }
     }
     if (op.liveUrl != null) {
-        ExtButton(op.liveUrl, "Live demo", BtnStyle.ORANGE, ariaLabel = "Live demo: ${op.title}")
+        ExtButton(op.liveUrl, "Live demo", BtnStyle.STEEL, ariaLabel = "Live demo: ${op.title}")
     }
 }
 
@@ -245,6 +244,6 @@ fun AttrsScope<*>.declassLine(order: Int) {
 fun DeclassStamp() {
     if (!Fx.DECLASSIFY) return
     Span({ classes("declass-stamp"); attr("aria-hidden", "true"); parallax(0.05) }) {
-        Stamp("Declassified", StampInk.RED, small = true)
+        Stamp("Declassified", StampInk.AMBER, small = true)
     }
 }

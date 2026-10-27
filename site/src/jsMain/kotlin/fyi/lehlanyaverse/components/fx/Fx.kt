@@ -24,8 +24,14 @@ object Fx {
     /** Redaction bars wipe off dossier cards as they enter view, then a stamp lands. */
     const val DECLASSIFY = true
 
-    /** "SECTOR 0X // NAME" types on above each section heading. */
-    const val TYPE_HEADERS = true
+    /** "SECTOR 0X // NAME" projected above each section heading; flickers on as the section enters view. */
+    const val PROJECTED_HEADERS = true
+
+    /** "VIS" light meter in the header strip: rises with scroll speed, sinks back to HIDDEN when still. */
+    const val VISIBILITY = true
+
+    /** Burst moments step into a spotlight as they scroll into view and fall back into shadow as they leave. */
+    const val BURST_LIGHT = true
 
     /** Fake lat/long + grid ref in the header that pans with scroll. */
     const val COORDINATES = true

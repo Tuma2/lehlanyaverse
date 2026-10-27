@@ -69,7 +69,7 @@ kobweb {
                 ).joinToString("; ")
                 meta { httpEquiv = "Content-Security-Policy"; content = csp }
                 meta(name = "referrer", content = "strict-origin-when-cross-origin")
-                meta(name = "theme-color", content = "#050604")
+                meta(name = "theme-color", content = "#07090b")
                 meta(name = "color-scheme", content = "dark")
                 link(rel = "apple-touch-icon", href = "/apple-touch-icon.png")
                 link(rel = "manifest", href = "/site.webmanifest")
@@ -79,6 +79,8 @@ kobweb {
                 link(rel = "preload", href = "/fonts/jetbrains-mono.woff2") {
                     attributes["as"] = "font"; attributes["type"] = "font/woff2"; attributes["crossorigin"] = ""
                 }
+                // Palette, glow and texture strengths first; hud.css only reads them
+                link(rel = "stylesheet", href = "/css/theme.css")
                 link(rel = "stylesheet", href = "/css/hud.css")
                 // Decides on the boot intro before first paint (source: src/head/boot.js)
                 script { unsafe { raw(boot) } }

@@ -22,15 +22,15 @@ private const val START_LON = 28.0473
 private const val TEXT_INTERVAL_MS = 66.0
 
 /**
- * The header's telemetry strip: MISSION PROGRESS bar + readout, and fake coordinates that pan with scroll as if
- * the camera were moving across a map. Decorative for screen readers (it changes every frame).
+ * The header's telemetry strip: MISSION PROGRESS bar + readout, the light meter ([VisibilityMeter]), and fake
+ * coordinates that pan with scroll as if the camera were moving across a map. Decorative for screen readers (it changes every frame).
  *
  * The pre-rendered HTML holds the start values; frames then rewrite the existing text nodes in place, and only
  * when the shown value changes. The readouts have fixed widths, so an update never moves anything else.
  */
 @Composable
 fun Telemetry() {
-    if (!Fx.PROGRESS && !Fx.COORDINATES) return
+    if (!Fx.PROGRESS && !Fx.COORDINATES && !Fx.VISIBILITY) return
     val refs = remember { mutableMapOf<String, HTMLElement>() }
 
     Div({ classes("telemetry"); attr("aria-hidden", "true") }) {
@@ -47,6 +47,7 @@ fun Telemetry() {
                     Span({ classes("telemetry__pct"); ref { refs["pct"] = it; onDispose { } } }) { Text("000%") }
                 }
             }
+            VisibilityMeter()
             if (Fx.COORDINATES) {
                 Span({ classes("telemetry__coords") }) {
                     Span({ classes("telemetry__ll"); ref { refs["ll"] = it; onDispose { } } }) { Text(latLon(START_LAT, START_LON)) }

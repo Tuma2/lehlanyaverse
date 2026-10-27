@@ -146,6 +146,8 @@ private class ReticleController(private val root: HTMLElement) {
         target = next
         if (next != null) {
             label.textContent = lockLabel(next)
+            // Violet lock inside a burst moment (hud.css 8e), amber everywhere else
+            root.classList.toggle("in-burst", next.closest(".burst") != null)
             root.classList.add("is-locked")
         } else {
             root.classList.remove("is-locked")

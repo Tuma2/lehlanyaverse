@@ -1,8 +1,11 @@
 package fyi.lehlanyaverse
 
+import fyi.lehlanyaverse.data.CommendationGroup
+import fyi.lehlanyaverse.data.CommendationKind
 import fyi.lehlanyaverse.data.Intel
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -23,7 +26,7 @@ class IntelTest {
     @Test
     fun requiredTextIsPresent() {
         val op = Intel.operator
-        listOf(op.name, op.callsign, op.role, op.location, op.status).forEach { assertTrue(it.isNotBlank()) }
+        listOf(op.name, op.callsign, op.role, op.location, op.status, op.availabilityNote).forEach { assertTrue(it.isNotBlank()) }
         assertTrue(op.bio.isNotEmpty())
         Intel.operations.forEach { o ->
             assertTrue(o.title.isNotBlank() && o.summary.isNotBlank(), "Operation ${o.slug} needs a title and summary")
@@ -70,6 +73,28 @@ class IntelTest {
             assertTrue(it.alt.isNotBlank(), "Screenshot ${it.src} needs alt text")
             assertTrue(it.src.startsWith("/"), "Screenshot ${it.src} should be a site-relative path")
         }
+    }
+
+    @Test
+    fun everyCommendationGroupIsFilled() {
+        val used = Intel.commendations.map { it.group }.toSet()
+        CommendationGroup.entries.forEach { assertTrue(it in used, "Commendation group '${it.label}' is empty") }
+    }
+
+    @Test
+    fun certificatesAreNotCalledCertifications() {
+        // A completion or training certificate is not an accredited certification: its title must not claim one
+        Intel.commendations
+            .filter { it.kind == CommendationKind.COMPLETION || it.kind == CommendationKind.TRAINING }
+            .forEach { assertFalse(Regex("certified|certification", RegexOption.IGNORE_CASE).containsMatchIn(it.title), "'${it.title}' is a ${it.kind.label}, not a certification") }
+    }
+
+    @Test
+    fun securityCertsHangInTheClearanceCluster() {
+        // The medal wall frames isClearance groups as "Security clearance": ISC2 CC and both ISO 27001 entries belong there
+        val clearance = Intel.commendations.filter { it.group.isClearance }.map { it.title }
+        assertEquals(2, clearance.count { "27001" in it }, "Both ISO/IEC 27001 entries must be in the clearance cluster: $clearance")
+        assertTrue(clearance.any { "Certified in Cybersecurity" in it }, "ISC2 CC must be in the clearance cluster: $clearance")
     }
 
     @Test

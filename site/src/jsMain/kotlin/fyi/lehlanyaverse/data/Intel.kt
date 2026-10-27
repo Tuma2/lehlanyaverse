@@ -18,6 +18,9 @@ object Intel {
         location = "Johannesburg, ZA",
         coordinates = "26.2041°S 28.0473°E",
         status = "ACTIVE DUTY",
+        // false: the beacon goes dim and reads "ON ASSIGNMENT"
+        openToOpportunities = true,
+        availabilityNote = "Roles: Backend / Java / Kotlin — Johannesburg or remote",
         clearance = "LEVEL 4 // BACKEND",
         bio = listOf(
             "Java backend engineer with 4+ years of commercial experience in Java and REST API development, " +
@@ -126,11 +129,13 @@ object Intel {
 
     // TODO(sebabatso): add credentialUrl links (Credly etc.) where you have them.
     val commendations = listOf(
-        Commendation("Exposure Management Expert", "XM Cyber", CommendationKind.CERTIFICATION, awarded = 2025),
-        Commendation("Certified in Cybersecurity (CC)", "ISC2", CommendationKind.CERTIFICATION, awarded = 2025, expires = 2028),
-        Commendation("AWS Certified Cloud Practitioner", "Amazon Web Services", CommendationKind.CERTIFICATION, awarded = 2023, expires = 2026),
-        Commendation("Software Engineering Certificate", "HyperionDev", CommendationKind.EDUCATION, awarded = 2022),
-        Commendation("National Senior Certificate", "Gimnasium", CommendationKind.EDUCATION, awarded = 2016),
+        Commendation("Exposure Management Expert", "XM Cyber", CommendationKind.CERTIFICATION, CommendationGroup.SECURITY, awarded = 2025),
+        Commendation("Certified in Cybersecurity (CC)", "ISC2", CommendationKind.CERTIFICATION, CommendationGroup.SECURITY, awarded = 2025, expires = 2028),
+        Commendation("ISO/IEC 27001 ISMS Implementation", "WWISE", CommendationKind.COMPLETION, CommendationGroup.SECURITY, awarded = 2026),
+        Commendation("ISO/IEC 27001 Lead Auditor", "WWISE", CommendationKind.TRAINING, CommendationGroup.SECURITY, awarded = 2026),
+        Commendation("AWS Certified Cloud Practitioner", "Amazon Web Services", CommendationKind.CERTIFICATION, CommendationGroup.CLOUD, awarded = 2023, expires = 2026),
+        Commendation("Software Engineering Certificate", "HyperionDev", CommendationKind.EDUCATION, CommendationGroup.CLOUD, awarded = 2022),
+        Commendation("National Senior Certificate", "Gimnasium", CommendationKind.EDUCATION, CommendationGroup.EDUCATION, awarded = 2016),
     )
 
     val operations = listOf(

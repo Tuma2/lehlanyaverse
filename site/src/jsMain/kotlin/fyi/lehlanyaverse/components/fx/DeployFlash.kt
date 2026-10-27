@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import fyi.lehlanyaverse.components.hud.Stamp
 import fyi.lehlanyaverse.components.layout.dossierSections
 import kotlinx.browser.window
 import org.jetbrains.compose.web.dom.Div
@@ -15,8 +16,9 @@ import org.jetbrains.compose.web.dom.Text
 private const val LEAD_MS = 220
 
 /**
- * "DEPLOYING TO SECTOR 03 // SERVICE RECORD": a one-line overlay with a scanline sweep, shown for an instant
- * before a nav or tracker jump. Decorative (focus moves to the section on arrival), so hidden from screen readers.
+ * "DEPLOYING TO SECTOR 03 // SERVICE RECORD": a one-line overlay with a scanline sweep, a green/violet split and a
+ * DEPLOYED stamp, shown for an instant before a nav or tracker jump. Decorative (focus moves to the section on
+ * arrival), so hidden from screen readers.
  */
 object DeployFlash {
     private var line by mutableStateOf<String?>(null)
@@ -38,10 +40,13 @@ object DeployFlash {
         // A fresh element per shot restarts the CSS animation without forcing a reflow
         key(shot) {
             Div({ classes("deploy-flash"); attr("aria-hidden", "true") }) {
+                // Green and violet halves slide apart behind the line; DEPLOYED is stamped under it
+                Span({ classes("deploy-flash__split") })
                 Span({ classes("deploy-flash__line") }) {
                     Span({ classes("deploy-flash__chev") }) { Text("▶▶ ") }
                     Text(text)
                 }
+                Span({ classes("deploy-flash__stamp") }) { Stamp("Deployed", small = true) }
             }
         }
     }

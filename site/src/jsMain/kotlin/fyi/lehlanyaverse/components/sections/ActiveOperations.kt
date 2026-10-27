@@ -10,7 +10,6 @@ import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
 import fyi.lehlanyaverse.components.hud.SectionHead
 import fyi.lehlanyaverse.components.hud.StatusTag
-import fyi.lehlanyaverse.components.hud.Tape
 import fyi.lehlanyaverse.components.hud.Tilt
 import fyi.lehlanyaverse.components.hud.declassLine
 import fyi.lehlanyaverse.components.hud.declassify
@@ -43,15 +42,14 @@ private fun OpCard(op: Operation, index: Int) {
     Panel(
         tag = "article",
         accent = when (op.status) {
-            OpStatus.DEPLOYED -> Accent.ACID
-            OpStatus.IN_PROGRESS -> Accent.ORANGE
-            OpStatus.RECON -> Accent.TAPE
+            OpStatus.DEPLOYED -> Accent.SIGNAL
+            OpStatus.IN_PROGRESS -> Accent.STEEL
+            OpStatus.RECON -> Accent.MUTED
         },
         tilt = if (index % 2 == 0) Tilt.LEFT else Tilt.RIGHT,
         extraClasses = listOf("op"),
         attrs = { attr("aria-labelledby", titleId); declassify() },
     ) {
-        if (index % 2 == 1) Tape("left")
         PanelBar("OP" to (index + 1).toString().padStart(2, '0'), "FILE" to op.slug.uppercase())
         Div({ classes("op__head") }) {
             P({ classes("op__codename", "readout"); declassLine(0) }) { Text(op.codename) }

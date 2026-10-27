@@ -1,0 +1,79 @@
+/* ==========================================================================
+   LEHLANYAVERSE THEME: covert ops // night surveillance
+   Every colour, glow level and texture strength on the site is set here; hud.css only reads these.
+   Loaded before hud.css. To make the whole site darker or lighter, start with the "dial" block.
+
+   Rules of the palette:
+   - Near-black base, cold gunmetal/blue-grey panels: most of the page sits in shadow.
+   - One signal colour (night-vision green), used sparingly: live status, the beacon, what is "lit".
+   - Amber only for alerts and stamps. Red only for CLASSIFIED.
+   - Violet (--burst) and every collage texture exist only inside the burst moments (.burst): the hero
+     collage, the section breaks, the evidence board, the medal wall and the maintenance page.
+   - Body text (--ink, --dim) must keep WCAG AA (4.5:1) on every surface below. Check after any change.
+   ========================================================================== */
+:root {
+  /* ---- dial: overall darkness ------------------------------------------ */
+  --spot: 9%;            /* soft spotlights on lit content (0% = no light pools) */
+  --spot-cold: 14%;      /* the colder, tighter cone over photos and the active card */
+  --vignette: 82%;       /* edge darkness of the fixed vignette */
+
+  /* ---- base ------------------------------------------------------------ */
+  --void: #07090b;       /* page */
+  --void-2: #0a0d10;     /* insets, overlays */
+  --gunmetal: #0e1216;   /* panel base */
+  --gunmetal-2: #131920; /* panel top edge of the gradient */
+  --steel: #18212a;      /* raised / alternate panel */
+  --steel-2: #24303a;    /* rules, ribbon stripes, inactive fills */
+  --steel-3: #8799ab;    /* muted cold readouts (grid refs, units) */
+  --steel-hi: #a3b8c8;   /* structural accent: brackets, numbers, primary buttons */
+
+  /* ---- ink ------------------------------------------------------------- */
+  --ink: #d6dee4;        /* body text */
+  --dim: #8f9daa;        /* secondary text, readouts */
+  --line: color-mix(in srgb, var(--steel-hi) 13%, transparent);
+  --line-strong: color-mix(in srgb, var(--steel-hi) 30%, transparent);
+
+  /* ---- signal, alert, classified --------------------------------------- */
+  --signal: #7cffb2;     /* night-vision green */
+  --amber: #e2a43a;      /* alerts and stamps only */
+  --classified: #f0565c; /* CLASSIFIED only */
+
+  /* ---- glow levels ----------------------------------------------------- */
+  --glow-signal: 0 0 0.45rem var(--signal), 0 0 1.1rem color-mix(in srgb, var(--signal) 45%, transparent);
+  --glow-soft: 0 0 1rem color-mix(in srgb, var(--signal) 18%, transparent);
+  /* Text projected onto a surface: tight core + wide bloom */
+  --glow-head: 0 0 0.04em color-mix(in srgb, var(--signal) 70%, transparent), 0 0 0.35em color-mix(in srgb, var(--signal) 28%, transparent);
+  --glow-head-ink: 0 0 0.3em color-mix(in srgb, var(--steel-hi) 22%, transparent);
+
+  /* ---- texture strengths (0 = off) ------------------------------------- */
+  --grain: 0.045;        /* film grain over everything */
+  --scan: 0.32;          /* CRT scanlines over everything */
+  --grid: 7%;            /* HUD grid lines */
+  --topo: 0.05;          /* topographic map under the page */
+  --paper-hint: 0.45;    /* grain/age on Polaroid paper */
+  --burst-tape: 0.4;     /* masking tape and stickers (burst moments only) */
+  --nv: 0.85;            /* night-vision tint on photos, 0 to 1 (hover clears it) */
+
+  /* ---- paper (Polaroid frames keep their print look, cooled down) ------- */
+  --paper: #e6e6e1;
+  --paper-ink: #1f2226;
+  --paper-note: #9a2d2a;
+
+  /* ---- cursor (hud.css 8c). Data URIs cannot read variables, so the colours are baked in:
+     outline #07090b (--void), aim #7cffb2 (--signal), lock #e2a43a (--amber), lock inside a burst #9d6bff
+     (--burst). Change them here too. */
+  --cursor-aim: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%2307090b' stroke-width='4'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%2307090b'/%3E%3Cpath d='M16 3v9M16 20v9M3 16h9M20 16h9' stroke='%237cffb2' stroke-width='2'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%237cffb2'/%3E%3C/svg%3E");
+  --cursor-lock: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%2307090b' stroke-width='4'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%2307090b'/%3E%3Cpath d='M16 3v9M16 20v9M3 16h9M20 16h9' stroke='%23e2a43a' stroke-width='2'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%23e2a43a'/%3E%3C/svg%3E");
+  --cursor-lock-burst: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M16 2v11M16 19v11M2 16h11M19 16h11' stroke='%2307090b' stroke-width='4'/%3E%3Crect x='14' y='14' width='4' height='4' fill='%2307090b'/%3E%3Cpath d='M16 3v9M16 20v9M3 16h9M20 16h9' stroke='%239d6bff' stroke-width='2'/%3E%3Crect x='15' y='15' width='2' height='2' fill='%239d6bff'/%3E%3C/svg%3E");
+
+  /* ---- bursts: the loud ~20% (hud.css section 8e), always at full density ---- */
+  --burst: #9d6bff;      /* electric violet: burst moments only, never in normal content */
+  --burst-glow: 0 0 0.6rem color-mix(in srgb, var(--burst) 55%, transparent), 0 0 1.6rem color-mix(in srgb, var(--burst) 28%, transparent);
+  --burst-shade: 0.42;   /* collage brightness once a burst scrolls out of its spotlight (1 = no dimming) */
+  --burst-spot: 20%;     /* strength of the spotlight cone over a burst in view */
+  --string: var(--classified); /* red string on the evidence board */
+  --stamp-ink: 0.85;     /* stamp opacity inside bursts */
+  --fingerprint: 0.6;    /* ink strength of the fingerprint card */
+  --halftone: 0.55;      /* violet halftone splashes */
+  --marquee-speed: 40s;  /* one loop of a burst marquee / intel ticker */
+}

@@ -1,14 +1,17 @@
 package fyi.lehlanyaverse.components.hud
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import fyi.lehlanyaverse.components.fx.Fx
 import fyi.lehlanyaverse.data.Photo
 import kotlinx.browser.document
 import kotlinx.browser.window
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.web.attributes.AttrsScope
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
@@ -16,14 +19,16 @@ import org.jetbrains.compose.web.dom.Img
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.TagElement
 import org.jetbrains.compose.web.dom.Text
+import org.w3c.dom.Element
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.events.Event
 
 /*
  * Polaroid photos: a single print, a pinned print, and a clipped stack that cycles on tap.
  * All look and motion lives in hud.css ("Polaroids"); these only set state and data attributes.
  */
 
-enum class PinStyle(val cls: String) { RED("pinned--red"), ACID("pinned--acid") }
+enum class PinStyle(val cls: String) { STEEL("pinned--steel"), SIGNAL("pinned--signal") }
 
 enum class ClipStyle(val cls: String?) { STEEL("pstack--clip"), NONE(null) }
 
@@ -65,7 +70,7 @@ fun Polaroid(photo: Photo, exposeAlt: Boolean = true, attrs: (AttrsScope<HTMLEle
 
 /** A single print pushed into the page with a pushpin; straightens and regains colour on hover. */
 @Composable
-fun PinnedPolaroid(photo: Photo, rotation: Int = -4, pin: PinStyle = PinStyle.RED) {
+fun PinnedPolaroid(photo: Photo, rotation: Int = -4, pin: PinStyle = PinStyle.STEEL) {
     Div({ classes("pinned", pin.cls); style { property("--rot", "${rotation}deg") } }) {
         Polaroid(photo)
         Deco("pinned__pin")
@@ -75,6 +80,10 @@ fun PinnedPolaroid(photo: Photo, rotation: Int = -4, pin: PinStyle = PinStyle.RE
 /**
  * A paper-clipped stack of prints. Tapping the top print sends it to the back and brings up the next, cycling in
  * order. [rotations] are the resting angles for the top, second and every deeper position.
+ *
+ * Every [autoCycleMs] (0 = never) the stack also flips itself, with the same swap. A tap flips at once and restarts
+ * the timer. Auto-cycling pauses while the stack is hovered or keyboard-focused, scrolled out of view or in a hidden
+ * tab, and the AUTO button turns it off. It starts off without motion (reduced motion, and in the static export).
  *
  * The photos and the button are siblings (a <figure> can't live inside a <button>, and the button's label would
  * mask the alt text), so the button overlays the top print and only that print is exposed to assistive tech.
@@ -86,19 +95,34 @@ fun PolaroidStack(
     rotations: List<Int> = listOf(-4, 5, -1),
     clip: ClipStyle = ClipStyle.STEEL,
     hint: String? = "TAP TO FLIP",
+    autoCycleMs: Int = 6000,
 ) {
     val n = photos.size
+    val canCycle = n > 1 && autoCycleMs > 0
     var top by remember { mutableStateOf(0) }
     var leaving by remember { mutableStateOf<Int?>(null) }
     var announcement by remember { mutableStateOf("") }
     var button by remember { mutableStateOf<HTMLElement?>(null) }
 
-    fun next() {
+    var auto by remember { mutableStateOf(Fx.motion) }
+    var hovered by remember { mutableStateOf(false) }
+    var focused by remember { mutableStateOf(false) }
+    var onScreen by remember { mutableStateOf(false) }
+    var tabVisible by remember { mutableStateOf(true) }
+    // Bumped on every flip, which restarts the countdown
+    var epoch by remember { mutableStateOf(0) }
+    val running = canCycle && auto && !hovered && !focused && onScreen && tabVisible
+
+    /** [byVisitor]: only a visitor's flip is announced and hides the "tap to flip" hint. */
+    fun next(byVisitor: Boolean) {
         if (n < 2 || leaving != null) return
         leaving = top
         top = (top + 1) % n
-        announcement = "Photo ${top + 1} of $n: ${photos[top].alt}"
-        rememberFlipped()
+        if (byVisitor) {
+            announcement = "Photo ${top + 1} of $n: ${photos[top].alt}"
+            rememberFlipped()
+        }
+        epoch++
         window.setTimeout({ leaving = null }, SWAP_MS)
     }
 
@@ -107,14 +131,52 @@ fun PolaroidStack(
         val pending = window.asDynamic().lvPendingFlip
         if (pending != null && pending != undefined) {
             window.asDynamic().lvPendingFlip = null
-            next()
+            next(byVisitor = true)
             if (pending == "key") button?.focus()
         }
+    }
+
+    LaunchedEffect(epoch, running) {
+        if (!running) return@LaunchedEffect
+        delay(autoCycleMs.toLong())
+        next(byVisitor = false)
+    }
+
+    DisposableEffect(canCycle) {
+        if (!canCycle) return@DisposableEffect onDispose { }
+        val onVisibility: (Event) -> Unit = { tabVisible = document.asDynamic().visibilityState != "hidden" }
+        document.addEventListener("visibilitychange", onVisibility)
+        onDispose { document.removeEventListener("visibilitychange", onVisibility) }
     }
 
     Div({
         classes(*listOfNotNull("pstack", clip.cls).toTypedArray())
         rotations.take(3).forEachIndexed { i, deg -> style { property("--rot$i", "${deg}deg") } }
+        if (canCycle) {
+            ref { el ->
+                // Mouse only: a tap would otherwise leave the stack "hovered", and paused, until the next tap elsewhere
+                val enter: (Event) -> Unit = { if (it.asDynamic().pointerType == "mouse") hovered = true }
+                val leave: (Event) -> Unit = { hovered = false }
+                // Keyboard focus only: a click also focuses the button, and that must not pause it for good
+                val focusIn: (Event) -> Unit = { focused = (it.target as? Element)?.matches(":focus-visible") == true }
+                val focusOut: (Event) -> Unit = { focused = false }
+                el.addEventListener("pointerenter", enter)
+                el.addEventListener("pointerleave", leave)
+                el.addEventListener("focusin", focusIn)
+                el.addEventListener("focusout", focusOut)
+                val io = IntersectionObserver({ entries, _ ->
+                    if (entries.isNotEmpty()) onScreen = entries.last().isIntersecting as Boolean
+                })
+                io.observe(el)
+                onDispose {
+                    io.disconnect()
+                    el.removeEventListener("pointerenter", enter)
+                    el.removeEventListener("pointerleave", leave)
+                    el.removeEventListener("focusin", focusIn)
+                    el.removeEventListener("focusout", focusOut)
+                }
+            }
+        }
     }) {
         Div({ classes("pstack__photos") }) {
             photos.forEachIndexed { i, photo ->
@@ -133,12 +195,26 @@ fun PolaroidStack(
                     attr("data-lock", "FLIP PHOTO") // label for the cursor reticle (fx/Reticle.kt)
                     attr("aria-label", "Show next $label (${top + 1} of $n)")
                     ref { el -> button = el; onDispose { button = null } }
-                    onClick { next() }
+                    onClick { next(byVisitor = true) }
                 })
             }
         }
         if (clip != ClipStyle.NONE) Deco("pstack__clip")
         if (n > 1 && hint != null) Deco("pstack__hint") { Text(hint) }
+        if (canCycle) {
+            Button({
+                classes("pstack__auto")
+                attr("type", "button")
+                attr("aria-pressed", auto.toString())
+                attr("data-lock", if (auto) "AUTO OFF" else "AUTO ON")
+                onClick { auto = !auto }
+            }) {
+                // The name is the visible "AUTO" (so it matches what is on screen); aria-pressed carries the
+                // on/off state, so the bracketed state is visual only
+                Text("AUTO")
+                Span({ classes("pstack__auto-state"); attr("aria-hidden", "true") }) { Text(if (auto) " [ON]" else " [OFF]") }
+            }
+        }
         Span({ classes("sr-only"); attr("aria-live", "polite") }) { Text(announcement) }
     }
 }

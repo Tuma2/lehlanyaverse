@@ -2,6 +2,7 @@ package fyi.lehlanyaverse.components.sections
 
 import androidx.compose.runtime.Composable
 import fyi.lehlanyaverse.components.hud.Accent
+import fyi.lehlanyaverse.components.hud.CamStamp
 import fyi.lehlanyaverse.components.hud.Chips
 import fyi.lehlanyaverse.components.hud.DeclassStamp
 import fyi.lehlanyaverse.components.hud.Deco
@@ -44,13 +45,20 @@ private fun MissionCard(m: Mission, index: Int) {
     val ongoing = m.end == null
     Panel(
         tag = "article",
-        accent = if (ongoing) Accent.ACID else Accent.ORANGE,
+        accent = if (ongoing) Accent.SIGNAL else Accent.STEEL,
         // Text-heavy cards stay straight: rotated body copy rasterises soft
         tilt = Tilt.NONE,
-        extraClasses = listOf("mission"),
+        // The active role sits under the cold spotlight; past ones stay in the shade
+        extraClasses = listOfNotNull("mission", "mission--lit".takeIf { ongoing }),
         attrs = { declassify() },
     ) {
-        PanelBar("DEBRIEF" to "M-${(index + 1).toString().padStart(3, '0')}", "UNIT" to m.unit.uppercase())
+        val n = index + 1
+        PanelBar(
+            "DEBRIEF" to "M-${n.toString().padStart(3, '0')}",
+            "UNIT" to m.unit.uppercase(),
+            "SIG" to if (ongoing) "94%" else "ARCHIVE",
+            "TRK" to if (ongoing) "LIVE" else "COLD",
+        )
         Div({ classes("mission__head") }) {
             Div {
                 P({ classes("mission__codename"); declassLine(0) }) { Text(m.codename) }
@@ -64,12 +72,12 @@ private fun MissionCard(m: Mission, index: Int) {
                     if (ongoing) Text("PRESENT") else Time(m.endIso!!) { Text(m.end!!) }
                 }
             }
-            if (ongoing) Stamp("Active", StampInk.ACID, small = true) else Stamp("Complete", StampInk.ORANGE, small = true)
+            if (ongoing) Stamp("Active", StampInk.AMBER, small = true) else Stamp("Complete", StampInk.STEEL, small = true)
         }
         P({ classes("mission__brief") }) { Text(m.briefing) }
         P({ classes("readout", "mission__obj-head") }) {
             Text("Objectives completed ")
-            Span({ classes("hl-acid") }) { Text("${m.objectives.size}/${m.objectives.size}") }
+            Span({ classes("hl-signal") }) { Text("${m.objectives.size}/${m.objectives.size}") }
         }
         Ul({ classes("objectives"); attr("role", "list") }) {
             m.objectives.forEach { o ->
@@ -80,6 +88,13 @@ private fun MissionCard(m: Mission, index: Int) {
             }
         }
         Chips(m.stack, "Stack used on ${m.role} at ${m.unit}")
+        // Decorative surveillance readouts: a live feed on the active role, a cold archive tag on the rest
+        Div({ classes("mission__feed", "readout"); attr("aria-hidden", "true") }) {
+            if (ongoing) CamStamp((3 + n).toString().padStart(2, '0')) else Span { Text("ARCHIVE REEL ${(3 + n).toString().padStart(2, '0')}") }
+            Span { Text("ENC AES-256") }
+            Span { Text("UPLINK JHB-${(6 + n).toString().padStart(2, '0')}") }
+            Span { Text("PKT 0x${(0x3F2A + n * 0x11B).toString(16).uppercase()}") }
+        }
         DeclassStamp()
     }
 }
