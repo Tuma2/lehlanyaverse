@@ -323,14 +323,6 @@ html[data-boot] body::after {
   font-variant-numeric: tabular-nums;
 }
 
-.clock__label {
-  display: none;
-}
-
-@media (min-width: 96rem) {
-  .clock__label { display: inline; }
-}
-
 .clock__time {
   color: var(--steel-hi);
   font-weight: 700;
@@ -344,8 +336,22 @@ html[data-boot] body::after {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--classified) 25%, transparent);
 }
 
-@media (min-width: 30rem) {
+/* Only where the bar has room for it beside the beacon, the CV button and the nav (or MENU) */
+@media (min-width: 56rem) and (max-width: 79.99rem), (min-width: 88rem) {
   .clock { display: inline-flex; }
+}
+
+/* Phones: brand, beacon, CV and MENU share 360px. The "//" goes and the gaps tighten */
+@media (max-width: 29.99rem) {
+  .hud-header__inner { column-gap: 0.5rem; }
+  .brand { font-size: clamp(1.1rem, 5.6vw, 1.6rem); }
+  .brand__slash { display: none; }
+  .hud-header .nav-menu > summary { padding: 0 0.6rem; }
+}
+
+/* Under 360px there's no room for a fourth item: the CV stays one tap away in the hero and COMMS */
+@media (max-width: 22.49rem) {
+  .hud-header .dossier { display: none; }
 }
 
 .nav {
@@ -1149,6 +1155,212 @@ html[data-boot] body::after {
   padding-top: 0.45rem;
   border-top: 1px dashed var(--line-strong);
   width: 100%;
+}
+
+/* Dossier: components/hud/Dossier.kt. EXTRACT DOSSIER (CV download) + VIEW; data-state drives the decrypt */
+.dossier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.dossier__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem 0.55rem 0.55rem;
+  border: 2px solid var(--signal);
+  background: color-mix(in srgb, var(--signal) 7%, var(--void));
+  color: var(--ink);
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: box-shadow var(--t-fast), background-color var(--t-fast);
+}
+
+.dossier__btn:hover,
+.dossier__btn:focus-visible,
+.dossier__btn[data-state="done"] {
+  background: color-mix(in srgb, var(--signal) 14%, var(--void));
+  box-shadow: 0 0 0.45rem color-mix(in srgb, var(--signal) 55%, transparent), 0 0 1.4rem color-mix(in srgb, var(--signal) 35%, transparent);
+}
+
+/* Download glyph inside HUD corner brackets (the panel's bracket technique, scaled down) */
+.dossier__icon {
+  --c: var(--signal);
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.1rem;
+  height: 2.1rem;
+  color: var(--signal);
+  background:
+    linear-gradient(var(--c), var(--c)) top left / 8px 2px,
+    linear-gradient(var(--c), var(--c)) top left / 2px 8px,
+    linear-gradient(var(--c), var(--c)) top right / 8px 2px,
+    linear-gradient(var(--c), var(--c)) top right / 2px 8px,
+    linear-gradient(var(--c), var(--c)) bottom left / 8px 2px,
+    linear-gradient(var(--c), var(--c)) bottom left / 2px 8px,
+    linear-gradient(var(--c), var(--c)) bottom right / 8px 2px,
+    linear-gradient(var(--c), var(--c)) bottom right / 2px 8px;
+  background-repeat: no-repeat;
+}
+
+/* The arrow drops into a tray (its underline) */
+.dossier__arrow {
+  padding: 0 0.2em 0.05em;
+  border-bottom: 2px solid currentColor;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: translate var(--t-fast);
+}
+
+.dossier__btn:hover .dossier__arrow,
+.dossier__btn:focus-visible .dossier__arrow {
+  translate: 0 0.12em;
+}
+
+.dossier__text {
+  display: grid;
+  gap: 0.15rem;
+  line-height: 1.2;
+}
+
+/* All states share one grid cell, so the button keeps the width of the longest */
+.dossier__states {
+  display: grid;
+}
+
+.dossier__state {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+.dossier__btn[data-state="idle"] .dossier__state--idle,
+.dossier__btn[data-state="decrypt"] .dossier__state--decrypt,
+.dossier__btn[data-state="done"] .dossier__state--done {
+  visibility: visible;
+}
+
+.dossier__label {
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+}
+
+.dossier__state--decrypt {
+  color: var(--ink);
+}
+
+.dossier__sub {
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* Progress line along the foot, scaled from the left */
+.dossier__bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+}
+
+.dossier__bar span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left;
+}
+
+.dossier__view {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 44px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--line-strong);
+  color: var(--steel-hi);
+  font-family: var(--f-mono);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: border-color var(--t-fast), color var(--t-fast);
+}
+
+.dossier__view:hover,
+.dossier__view:focus-visible {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+/* Header version: bracketed glyph + "CV", sized to the bar */
+.dossier--compact {
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 44px;
+  padding: 0;
+  border-width: 1px;
+}
+
+.dossier--compact .dossier__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.dossier--compact .dossier__arrow {
+  font-size: 0.9rem;
+}
+
+.dossier__cv {
+  display: none;
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--signal);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Icon only until the bar has room for the label (the link keeps its full name either way) */
+@media (min-width: 48rem) {
+  .dossier__cv { display: grid; }
+
+  .dossier--compact {
+    justify-content: flex-start;
+    padding: 0 0.7rem 0 0.25rem;
+  }
+}
+
+/* On the ID card, under the beacon: same divider, a size down to fit the strip */
+.idcard__status .dossier {
+  margin-top: 0.5rem;
+  padding-top: 0.55rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.idcard__status .dossier__label {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dossier__btn,
+  .dossier__arrow,
+  .dossier__view {
+    transition: none;
+  }
 }
 
 /* Polaroids: components/hud/Polaroid.kt ---------------------------------- */
@@ -2200,6 +2412,21 @@ html[data-flipped] .pstack__hint {
   translate: 0.3em 0;
 }
 
+/* CH-04: the CV, under the channel cards */
+.comms__dossier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.comms__dossier-idx {
+  color: var(--steel-hi);
+}
+
 .comms__stamp {
   position: absolute;
   right: 1.5rem;
@@ -2383,6 +2610,11 @@ html[data-flipped] .pstack__hint {
 .lost__msg {
   margin-top: 1.25rem;
   max-width: 50ch;
+}
+
+/* Maintenance (OffAir): the CV first, the channels under it */
+.lost__panel .dossier {
+  margin-top: 1.5rem;
 }
 
 /* 8b. SCROLL FX: components/fx (each one switchable in Fx.kt) ------------ */
@@ -3699,7 +3931,9 @@ section[tabindex="-1"]:focus {
   .sector-break__stamp--b { display: none; }
 }
 
-/* ---- Evidence board: components/sections/FieldIntel.kt ---- */
+/* ---- Evidence board: components/sections/FieldIntel.kt ----
+   Papers sit where Intel.fieldIntel puts them (--x/--y, % of the surface, at the pin), red string between linked
+   topics, pins over everything. Laid out in % by BoardLayout.kt, so nothing is measured. Below 64rem: a stack. */
 .board {
   margin-top: 1rem;
   padding: clamp(2rem, 4vw, 3rem) clamp(1rem, 4vw, 3rem) 17rem;
@@ -3715,65 +3949,83 @@ section[tabindex="-1"]:focus {
   background: radial-gradient(ellipse 60% 55% at 50% 40%, color-mix(in srgb, var(--steel-hi) var(--burst-spot), transparent), transparent 75%);
 }
 
-.board__items {
+/* One fade as it first comes into view (Observe.kt arms it below the fold; never without motion) */
+@keyframes board-fade {
+  from { opacity: 0; }
+}
+
+.board.fx-armed {
+  opacity: 0;
+}
+
+.board.fx-armed.is-seen {
+  opacity: 1;
+  animation: board-fade 0.6s ease-out both;
+}
+
+.board__surface {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 3rem 2.5rem;
+  height: calc(var(--rows, 2) * 22rem);
 }
 
-.board__slot {
-  position: relative;
-  z-index: 2;
-}
-
-/* An open file lies over everything else on the board, string included */
-.board__slot:has(details[open]) {
-  z-index: 6;
-}
-
-/* Red string: FieldIntel.kt lays one span per link (wide screens). Phones get a single thread down the stack */
+/* Red string: one path per linked pair, in a 0..100 box stretched over the surface. The shadow sits on the svg
+   (CSS px); on a path it would stretch with the box */
 .board__strings {
   position: absolute;
   inset: 0;
-  z-index: 1; /* under the exhibits: string runs between them, pins sit on top */
+  z-index: 1; /* over the board, under the papers */
   pointer-events: none;
 }
 
-.board__string {
+.board__strings svg {
   position: absolute;
-  height: 2px;
-  margin-top: -1px;
-  transform-origin: 0 50%;
-  background: var(--string);
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.6);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 2px 1.5px rgba(0, 0, 0, 0.6));
+}
+
+.board__strings path {
+  fill: none;
+  stroke: var(--string);
+  stroke-width: 2;
+  stroke-linecap: round;
   opacity: 0.85;
+  vector-effect: non-scaling-stroke;
+  transition: opacity 0.15s, stroke-width 0.15s, stroke 0.15s;
 }
 
-@media (max-width: 63.99rem) {
-  .board__items::before {
-    content: "";
-    position: absolute;
-    top: -1rem;
-    bottom: -1rem;
-    left: 1.6rem;
-    width: 2px;
-    background: var(--string);
-    opacity: 0.8;
-  }
-
-  .board__items .board__pin {
-    left: 1.6rem;
-  }
+/* Tracing: hovering or focusing a paper lights its string and the papers at the other end; the rest dim */
+.board__strings path.is-hot {
+  stroke: color-mix(in srgb, var(--string) 65%, #fff);
+  stroke-width: 3;
+  opacity: 1;
 }
 
-@media (min-width: 64rem) {
-  .board__items {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.board__strings path.board__glow {
+  stroke-width: 9;
+  opacity: 0;
+}
 
-  .board__slot:nth-child(3n + 2) { margin-top: 5rem; }
-  .board__slot:nth-child(3n) { margin-top: 1.5rem; }
+.board__strings path.board__glow.is-hot {
+  stroke: var(--string);
+  stroke-width: 9;
+  opacity: 0.3;
+}
+
+.board.is-tracing .board__strings path:not(.is-hot, .board__glow),
+.board.is-tracing .board__pins .board__pin:not(.is-linked) {
+  opacity: 0.45;
+}
+
+/* Papers dim by darkening, not fading: a see-through paper would show the string and papers behind it */
+.board.is-tracing .board__paper:not(.is-traced, .is-linked) {
+  filter: brightness(0.5) saturate(0.7);
+}
+
+.board.is-tracing .board__paper.is-linked {
+  filter: drop-shadow(0 0 0.7rem color-mix(in srgb, var(--string) 45%, transparent));
 }
 
 .board__pin {
@@ -3789,68 +4041,127 @@ section[tabindex="-1"]:focus {
   box-shadow: 0 3px 5px rgba(0, 0, 0, 0.7);
 }
 
-.evidence {
-  position: relative;
-  height: 100%;
-  rotate: var(--r, 0deg);
+/* The board's pins, one per paper at its --x/--y: over everything, string and overlapping papers included */
+.board__pins {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
 }
 
-.evidence__face {
+.board__pins .board__pin {
+  translate: -50% -50%;
+  transition: opacity 0.15s;
+}
+
+/* Loose lead: nothing links to it. A cut end of string hangs off a duller pin */
+.board__pin--loose,
+.board__paper--loose::before {
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.45) 0 15%, transparent 18%), color-mix(in srgb, var(--burst) 50%, var(--steel));
+}
+
+.board__pin--loose::after {
+  content: "";
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  width: 2px;
+  height: 2.4rem;
+  margin-left: -1px;
+  transform-origin: 50% 0;
+  rotate: 24deg;
+  background: linear-gradient(var(--string) 70%, transparent);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* A paper: the board's buttons and the opened file share these looks */
+.paper {
   position: relative;
+  isolation: isolate;
   display: block;
-  height: 100%;
   padding: 1.6rem 1.25rem 1.1rem;
-  list-style: none;
-  cursor: pointer;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  color: var(--paper-ink);
+  background: var(--paper);
   box-shadow: 0 1.25rem 2rem -0.75rem rgba(0, 0, 0, 0.85);
 }
 
-.evidence__face::-webkit-details-marker {
-  display: none;
-}
-
-.evidence__face:focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 4px;
-}
-
 /* Index card: ruled, with a margin line */
-.evidence--card .evidence__face {
+.paper--index-card {
   background:
     linear-gradient(90deg, transparent 2.1rem, color-mix(in srgb, var(--classified) 45%, transparent) 2.1rem 2.2rem, transparent 2.2rem),
     repeating-linear-gradient(transparent 0 1.45rem, color-mix(in srgb, var(--steel-3) 35%, transparent) 1.45rem calc(1.45rem + 1px)),
     var(--paper);
-  color: var(--paper-ink);
 }
 
-/* Newspaper clipping: torn edges */
-.evidence--clip .evidence__face {
+/* Newspaper clipping: torn edges. The paper itself stays square so the focus ring isn't torn off with it */
+.paper--clipping {
+  background: none;
+  box-shadow: none;
+}
+
+.paper--clipping::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
   background: color-mix(in srgb, var(--paper) 86%, var(--amber));
-  color: var(--paper-ink);
   clip-path: polygon(0 3%, 8% 0, 21% 3%, 37% 0, 55% 3%, 72% 0, 88% 3%, 100% 0, 99% 50%, 100% 97%, 84% 100%, 63% 97%, 44% 100%, 26% 97%, 9% 100%, 0 97%, 1% 50%);
 }
 
 /* Pinned field note: dark card with a violet strip */
-.evidence--note .evidence__face {
+.paper--note {
   background: linear-gradient(160deg, var(--steel), var(--gunmetal));
   border-top: 4px solid var(--burst);
   color: var(--ink);
 }
 
-:is(.evidence--card, .evidence--clip) .evidence__face .readout {
+/* Surveillance photo: a print with a still on it, captioned in marker */
+.paper--photo {
+  padding: 0.5rem 0.6rem 1rem;
+}
+
+.paper__img {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 0.75rem;
+  background:
+    url("/img/topo.svg") center / 180% auto,
+    radial-gradient(circle at 60% 45%, color-mix(in srgb, var(--signal) 35%, var(--void)), var(--void) 80%);
+}
+
+.paper__img .paper__cam {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+}
+
+.paper--photo .paper__title {
+  font-family: "Permanent Marker", "Segoe Print", cursive;
+  font-weight: 400;
+  text-transform: none;
+}
+
+:is(.paper--index-card, .paper--clipping, .paper--photo) .readout {
   color: color-mix(in srgb, var(--paper-ink) 82%, transparent);
 }
 
-.evidence__meta {
+.paper__meta {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 0.35rem 1rem;
   margin-bottom: 0.75rem;
 }
 
 /* Circled in marker */
-.evidence__exhibit {
+.paper__exhibit {
   margin: -0.2em -0.3em;
   padding: 0.2em 0.55em;
   border: 2px solid var(--burst);
@@ -3858,7 +4169,8 @@ section[tabindex="-1"]:focus {
   rotate: -4deg;
 }
 
-.evidence__title {
+.paper__title {
+  display: block;
   font-family: var(--f-display);
   font-weight: 900;
   font-size: 1.75rem;
@@ -3866,75 +4178,49 @@ section[tabindex="-1"]:focus {
   text-transform: uppercase;
 }
 
-.evidence--clip .evidence__title {
+.paper--clipping .paper__title {
   font-size: 2rem;
 }
 
-.evidence__open {
+.paper__teaser {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+}
+
+.paper__open {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   font-weight: 800;
   text-decoration: underline;
   text-underline-offset: 0.25em;
 }
 
-.evidence--note .evidence__open {
+.paper--note .paper__open {
   color: var(--signal);
 }
 
-.evidence__open-opened,
-.evidence[open] .evidence__open-closed {
+/* Links as chips: only in the stack, where there's no string to show them */
+.paper__links {
   display: none;
-}
-
-.evidence[open] .evidence__open-opened {
-  display: inline;
-}
-
-/* The opened file, laid over the board under its exhibit */
-.evidence__file {
-  position: absolute;
-  z-index: 6;
-  top: calc(100% - 1rem);
-  left: 50%;
-  width: min(24rem, calc(100vw - 2.5rem));
-  padding: 1.25rem 1.25rem 0.75rem;
-  translate: -50% 0;
-  rotate: calc(var(--r, 0deg) * -1 + 1deg);
-  background: var(--gunmetal);
-  border: 1px solid color-mix(in srgb, var(--burst) 60%, transparent);
-  box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.85), 0 0 1.5rem color-mix(in srgb, var(--burst) 25%, transparent);
-  color: var(--ink);
-}
-
-.evidence__file-head {
-  margin-bottom: 0.6rem;
-  color: var(--burst);
-}
-
-.evidence__tags {
-  display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.paper__chip {
+  padding: 0.2em 0.6em;
+  border: 1px solid color-mix(in srgb, var(--string) 70%, transparent);
+  color: inherit;
   font-size: var(--fs-xs);
   font-weight: 700;
-  color: var(--dim);
 }
 
-.evidence__src {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  font-size: var(--fs-sm);
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.evidence__scrawl {
+.paper__scrawl {
   position: absolute;
   z-index: 4;
   right: -0.75rem;
@@ -3946,11 +4232,91 @@ section[tabindex="-1"]:focus {
   pointer-events: none;
 }
 
-.board__slot:has(details[open]) .evidence__scrawl {
-  display: none;
+.board__paper--loose .paper__scrawl {
+  color: var(--dim);
 }
 
-/* Clutter pinned around the exhibits */
+/* On the board: pinned at its spot, turned and lifted round the pin */
+.board__paper {
+  position: absolute;
+  z-index: 2;
+  left: var(--x);
+  top: var(--y);
+  width: clamp(13rem, 22%, 17rem);
+  translate: -50% -0.6rem;
+  rotate: var(--r, 0deg);
+  transform-origin: 50% 0.6rem;
+  cursor: pointer;
+  transition: scale 0.2s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.2s, opacity 0.15s, filter 0.15s;
+}
+
+.board__paper:hover,
+.board__paper:focus-visible {
+  z-index: 3;
+  scale: 1.04;
+  box-shadow: 0 2rem 3rem -0.75rem rgba(0, 0, 0, 0.9);
+}
+
+.board__paper:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board__paper,
+  .board__strings path,
+  .board__pins .board__pin {
+    transition: none;
+  }
+}
+
+/* Narrow: no room for the board, so the papers stack as pinned cards, their links as chips instead of string */
+@media (max-width: 63.99rem) {
+  .board__surface {
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
+    height: auto;
+    padding-top: 0.75rem;
+  }
+
+  .board__strings,
+  .board__pins {
+    display: none;
+  }
+
+  .board__paper {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    translate: none;
+  }
+
+  .board__paper::before {
+    content: "";
+    position: absolute;
+    z-index: 2;
+    top: -0.55rem;
+    left: 50%;
+    width: 1.1rem;
+    aspect-ratio: 1;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.6) 0 15%, transparent 18%), var(--burst);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.7);
+  }
+
+  .paper__links {
+    display: flex;
+  }
+
+  .paper__scrawl {
+    right: 0.5rem;
+  }
+}
+
+/* Clutter pinned around the papers */
 .board .layer {
   position: absolute;
   z-index: 1;
@@ -4038,6 +4404,168 @@ section[tabindex="-1"]:focus {
   .board .board__stamp--b { display: none; }
   .board__circle { right: 4%; }
   .board .board__stamp { left: 30%; bottom: 1rem; }
+}
+
+/* ---- Opened paper: components/sections/IntelDialog.kt ----
+   A native modal <dialog> filling the viewport (so a click off the paper lands on it and closes), the paper lifted
+   off the board under a spotlight */
+.intel-dialog {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  overflow: hidden;
+}
+
+.intel-dialog[open] {
+  display: grid;
+  place-items: center;
+}
+
+.intel-dialog::backdrop {
+  background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.35) 0 16rem, rgba(0, 0, 0, 0.86) 34rem);
+}
+
+.intel-file {
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  cursor: auto;
+  box-shadow: 0 2.5rem 5rem rgba(0, 0, 0, 0.9), 0 0 3rem color-mix(in srgb, var(--burst) 25%, transparent);
+}
+
+.intel-file__body {
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 3.5rem clamp(1.25rem, 4vw, 2.25rem) 1.75rem;
+}
+
+.intel-file__meta {
+  justify-content: flex-start;
+}
+
+.intel-file__title {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+}
+
+.intel-file__title:focus {
+  outline: none;
+}
+
+.intel-file__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  font-weight: 700;
+}
+
+.intel-file__summary {
+  margin-top: 1rem;
+  font-size: var(--fs-md, 1.05rem);
+  line-height: 1.55;
+}
+
+.intel-file__actions {
+  margin-top: 1.5rem;
+}
+
+.intel-file__linked-head {
+  margin-top: 1.75rem;
+}
+
+.intel-file__linked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.intel-file__chip {
+  min-height: 44px;
+  padding: 0.4em 0.85em;
+  border: 1px solid color-mix(in srgb, var(--string) 70%, transparent);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.intel-file__chip:hover {
+  border-color: var(--string);
+  background: color-mix(in srgb, var(--string) 15%, transparent);
+}
+
+.intel-file__close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+}
+
+/* On light paper the HUD's pale steel and green would wash out: ink instead */
+:is(.paper--index-card, .paper--clipping, .paper--photo) .btn {
+  border-color: var(--paper-ink);
+  color: var(--paper-ink);
+}
+
+:is(.paper--index-card, .paper--clipping, .paper--photo) .btn:hover {
+  background: var(--paper-ink);
+  color: var(--paper);
+}
+
+@keyframes intel-lift {
+  from { opacity: 0; transform: translateY(2rem) scale(0.92) rotate(var(--r, 0deg)); }
+}
+
+@keyframes intel-drop {
+  to { opacity: 0; transform: translateY(1.25rem) scale(0.95); }
+}
+
+@keyframes intel-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes intel-fade-out {
+  to { opacity: 0; }
+}
+
+.intel-dialog[open] .intel-file {
+  animation: intel-lift 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.intel-dialog[open]::backdrop {
+  animation: intel-fade-in 0.28s ease-out both;
+}
+
+.intel-dialog.is-closing .intel-file {
+  animation: intel-drop 0.18s ease-in both;
+}
+
+.intel-dialog.is-closing::backdrop {
+  animation: intel-fade-out 0.18s ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intel-dialog[open] .intel-file,
+  .intel-dialog[open]::backdrop {
+    animation: intel-fade-in 0.12s linear both;
+  }
+
+  .intel-dialog.is-closing .intel-file,
+  .intel-dialog.is-closing::backdrop {
+    animation: intel-fade-out 0.12s linear both;
+  }
 }
 
 /* ---- Medal wall: components/sections/Commendations.kt ---- */

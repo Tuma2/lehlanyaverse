@@ -71,7 +71,7 @@
   --burst-glow: 0 0 0.6rem color-mix(in srgb, var(--burst) 55%, transparent), 0 0 1.6rem color-mix(in srgb, var(--burst) 28%, transparent);
   --burst-shade: 0.42;   /* collage brightness once a burst scrolls out of its spotlight (1 = no dimming) */
   --burst-spot: 20%;     /* strength of the spotlight cone over a burst in view */
-  --string: var(--classified); /* red string on the evidence board */
+  --string: var(--classified); /* red string on the evidence board: links between papers only */
   --stamp-ink: 0.85;     /* stamp opacity inside bursts */
   --fingerprint: 0.6;    /* ink strength of the fingerprint card */
   --halftone: 0.55;      /* violet halftone splashes */

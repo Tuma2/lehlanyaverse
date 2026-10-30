@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import com.varabyte.kobweb.core.AppGlobals
 import com.varabyte.kobweb.core.isExporting
 import com.varabyte.kobweb.core.layout.Layout
+import com.varabyte.kobweb.core.rememberPageContext
 import fyi.lehlanyaverse.components.fx.DeployFlash
 import fyi.lehlanyaverse.components.fx.Reticle
 import fyi.lehlanyaverse.components.fx.SmoothScroll
@@ -26,14 +27,19 @@ fun PageLayout(content: @Composable () -> Unit) {
         SmoothScroll.init()
     }
 
+    // The maintenance screen stands alone: the chrome's links point at sections that are offline with it
+    val offAir = rememberPageContext().route.path == "/maintenance"
+
     A("#main", { classes("skip-link") }) { Text("Skip to dossier") }
     FxLayers()
-    SiteHeader()
-    Ticker()
+    if (!offAir) {
+        SiteHeader()
+        Ticker()
+    }
     Main({ id("main"); tabIndex(-1) }) {
         Div({ classes("wrap") }) { content() }
     }
-    SiteFooter()
+    if (!offAir) SiteFooter()
     DeployFlash.Overlay()
     Reticle()
 }

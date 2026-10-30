@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.varabyte.kobweb.navigation.Anchor
 import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Deco
+import fyi.lehlanyaverse.components.hud.Dossier
 import fyi.lehlanyaverse.components.hud.Layer
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
@@ -11,6 +12,9 @@ import fyi.lehlanyaverse.components.hud.RedactedLines
 import fyi.lehlanyaverse.components.hud.Stamp
 import fyi.lehlanyaverse.components.hud.StampInk
 import fyi.lehlanyaverse.components.hud.litOnView
+import fyi.lehlanyaverse.data.CommsChannel
+import fyi.lehlanyaverse.data.Intel
+import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H1
 import org.jetbrains.compose.web.dom.P
@@ -36,6 +40,36 @@ fun SignalLost(message: String) {
                 Anchor("/", { classes("btn", "btn--solid") }) {
                     Text("Return to dossier")
                     Span({ classes("btn__arrow"); attr("aria-hidden", "true") }) { Text("→") }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * The maintenance screen (pages/Maintenance.kt): the same collage, but the panel says the site is down for work and
+ * still hands over the CV and the direct channels, so a recruiter never leaves empty-handed. Plain links only: in
+ * maintenance mode the deploy strips the app script.
+ */
+@Composable
+fun OffAir() {
+    Section({ classes("lost", "burst"); attr("aria-labelledby", "lost-title"); litOnView() }) {
+        Deco("burst__spot")
+        Suspended()
+        Panel(accent = Accent.SIGNAL, extraClasses = listOf("lost__panel")) {
+            PanelBar("STATUS" to "MAINTENANCE", "LINK" to "STANDBY")
+            P({ classes("readout", "hl-steel") }) { Text("> DOSSIER OFFLINE") }
+            H1({ id("lost-title"); classes("lost__title") }) { Text("Off air") }
+            P({ classes("lost__msg") }) {
+                Text("The dossier is down for maintenance and back online soon. The CV is still on file, and the channels are open.")
+            }
+            Dossier()
+            Div({ classes("hero__actions") }) {
+                Intel.comms.filter { it.channel != CommsChannel.GITHUB }.forEach { c ->
+                    A(c.url, {
+                        classes("btn")
+                        if (c.channel != CommsChannel.EMAIL) attr("rel", "noopener noreferrer")
+                    }) { Text(c.label) }
                 }
             }
         }

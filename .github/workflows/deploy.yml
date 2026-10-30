@@ -7,6 +7,11 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+    inputs:
+      maintenance:
+        description: "Maintenance mode: publish only the off-air page (the CV stays downloadable)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -56,6 +61,19 @@ jobs:
         with:
           configPath: ./lighthouserc.json
           uploadArtifacts: true
+
+      # The off-air page (pages/Maintenance.kt) takes over / and every unknown path. Its app script is stripped, so
+      # it stays the static page instead of mounting the dossier. /cv/, /css and /fonts stay, so the CV still downloads.
+      # The next push (or an unticked run) deploys the full site again.
+      - name: Maintenance mode
+        if: github.event_name == 'workflow_dispatch' && inputs.maintenance
+        working-directory: site/.kobweb/site
+        run: |
+          sed '/<script src="[^"]*" type="text\/x-kobweb-app"><\/script>/d' maintenance.html > off-air.html
+          if grep -q '<script src=' off-air.html; then echo "::error::App script still in the off-air page"; exit 1; fi
+          cp off-air.html index.html
+          mv off-air.html 404.html
+          rm -rf operations sitemap.xml
 
       - name: Upload site
         if: github.event_name != 'pull_request'

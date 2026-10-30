@@ -34,7 +34,27 @@ class IntelTest {
             assertTrue(o.stack.isNotEmpty(), "Operation ${o.slug} needs a stack")
         }
         Intel.serviceRecord.forEach { m -> assertTrue(m.objectives.isNotEmpty(), "${m.role} needs objectives") }
-        Intel.fieldIntel.forEach { n -> assertTrue(n.title.isNotBlank() && n.note.isNotBlank()) }
+        Intel.fieldIntel.forEach { n ->
+            assertTrue(n.title.isNotBlank() && n.teaser.isNotBlank() && n.summary.isNotBlank(), "'${n.id}' needs a title, teaser and summary")
+        }
+    }
+
+    @Test
+    fun fieldIntelLinksResolve() {
+        val ids = Intel.fieldIntel.map { it.id }
+        assertEquals(ids.size, ids.toSet().size, "Field intel ids must be unique: $ids")
+        Intel.fieldIntel.forEach { n ->
+            assertTrue(n.id.isNotBlank() && " " !in n.id, "Field intel id '${n.id}' must be a slug")
+            n.linkedTo.forEach { assertTrue(it in ids && it != n.id, "'${n.id}' links to unknown or self id '$it'") }
+        }
+    }
+
+    @Test
+    fun fieldIntelPapersStayOnTheBoard() {
+        Intel.fieldIntel.forEach { n ->
+            n.position?.let { assertTrue(it.x in 0.0..100.0 && it.y in 0.0..100.0, "'${n.id}' position $it is off the board (0–100%)") }
+            n.rotation?.let { assertTrue(it in -15.0..15.0, "'${n.id}' rotation $it° is more than ±15°") }
+        }
     }
 
     @Test
@@ -48,7 +68,7 @@ class IntelTest {
     @Test
     fun externalLinksAreSecure() {
         val urls = Intel.operations.flatMap { listOfNotNull(it.repoUrl, it.liveUrl) } +
-            Intel.fieldIntel.mapNotNull { it.url } +
+            Intel.fieldIntel.mapNotNull { it.link } +
             Intel.commendations.mapNotNull { it.credentialUrl } +
             Intel.comms.map { it.url }
         urls.forEach { url ->
@@ -102,8 +122,37 @@ class IntelTest {
         // Coordinates and years are the only digit runs expected; none of them look like a phone number
         val everything = listOf(
             Intel.operator, Intel.loadout, Intel.serviceRecord, Intel.commendations,
-            Intel.operations, Intel.fieldIntel, Intel.comms,
+            Intel.operations, Intel.fieldIntel, Intel.comms, Intel.cv,
         ).joinToString(" ")
         phonePattern.find(everything)?.let { fail("Possible phone number in Intel: '${it.value}'") }
+    }
+
+    @Test
+    fun cvMatchesItsFile() {
+        val cv = Intel.cv
+        assertTrue(cv.path.startsWith("/cv/") && cv.path.endsWith(".pdf"), "CV path '${cv.path}' must be /cv/<name>.pdf")
+        assertEquals(cv.path.substringAfterLast('/'), cv.fileName, "CV download name must match the file name")
+        assertTrue(Regex("""^\d{4}-(0[1-9]|1[0-2])$""").matches(cv.updated), "CV updated '${cv.updated}' must be yyyy-mm")
+        val size = Regex("""^PDF · (\d+(?:\.\d+)?) (KB|MB)$""").matchEntire(cv.size)
+            ?: fail("CV size '${cv.size}' must read like 'PDF · 90 KB'")
+
+        // The file itself: only on Node (CI's jsNodeTest), where the repo is on disk
+        if (js("typeof require === 'undefined'") as Boolean) return
+        val fs: dynamic = js("require('fs')")
+        val path: dynamic = js("require('path')")
+        var dir: String = js("process.cwd()")
+        while (true) {
+            val file: String = path.join(dir, "site", "src", "jsMain", "resources", "public", cv.path.removePrefix("/"))
+            if (fs.existsSync(file) as Boolean) {
+                val bytes = (fs.statSync(file).size as Number).toDouble()
+                val (n, unit) = size.destructured
+                val labelled = n.toDouble() * if (unit == "MB") 1024.0 * 1024 else 1024.0
+                assertTrue(bytes in labelled * 0.9..labelled * 1.1, "CV size label '${cv.size}' is off: the file is ${(bytes / 1024).toInt()} KB")
+                return
+            }
+            val parent: String = path.dirname(dir)
+            if (parent == dir) fail("CV file ${cv.path} not found under site/src/jsMain/resources/public")
+            dir = parent
+        }
     }
 }

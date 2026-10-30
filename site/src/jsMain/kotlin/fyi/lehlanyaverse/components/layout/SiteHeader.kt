@@ -9,6 +9,8 @@ import com.varabyte.kobweb.navigation.Anchor
 import fyi.lehlanyaverse.components.fx.Telemetry
 import fyi.lehlanyaverse.components.fx.scrollArea
 import fyi.lehlanyaverse.components.hud.Beacon
+import fyi.lehlanyaverse.components.hud.Dossier
+import fyi.lehlanyaverse.components.hud.DossierVariant
 import fyi.lehlanyaverse.components.hud.rememberSastTime
 import org.jetbrains.compose.web.dom.A
 import org.jetbrains.compose.web.dom.Div
@@ -43,6 +45,7 @@ fun SiteHeader() {
             }
             MissionClock()
             Beacon(compact = true)
+            Dossier(DossierVariant.COMPACT)
             Nav({ classes("nav"); attr("aria-label", "Dossier sections") }) {
                 Ul({ classes("nav__list"); attr("role", "list") }) {
                     dossierSections.forEachIndexed { i, (id, label) -> Li { NavLink(i, id, label) } }
@@ -91,7 +94,6 @@ private fun MissionClock() {
     val now = rememberSastTime()
     Div({ classes("clock"); attr("aria-hidden", "true") }) {
         Span({ classes("rec-dot") })
-        Span({ classes("clock__label") }) { Text("MISSION CLOCK") }
         Span({ classes("clock__time") }) { Text(now ?: "--:--:--") }
         Span { Text("SAST") }
     }

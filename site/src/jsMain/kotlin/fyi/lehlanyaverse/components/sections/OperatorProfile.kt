@@ -6,6 +6,7 @@ import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Beacon
 import fyi.lehlanyaverse.components.hud.CamStamp
 import fyi.lehlanyaverse.components.hud.Deco
+import fyi.lehlanyaverse.components.hud.Dossier
 import fyi.lehlanyaverse.components.hud.Layer
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
@@ -174,6 +175,8 @@ private fun IdCard() {
             Div({ classes("idcard__status") }) {
                 IdRow("Status") { Span({ classes("status-live") }) { Text(op.status) } }
                 Beacon()
+                // The primary call to action, right under availability
+                Dossier()
             }
             Div({ classes("idcard__rows") }) {
                 IdRow("Role") { Text("${op.role} // ${op.specialty}") }

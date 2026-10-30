@@ -53,6 +53,16 @@ fun AttrsScope<*>.revealOnEntry() {
 }
 
 /**
+ * [revealOnEntry] for an element whose `ref` already does something else (the evidence board's fade-in).
+ * [onShow] runs once the element is on display: when it plays, or straight away if it was never armed. Returns the
+ * clean-up.
+ */
+internal fun armOnEntry(el: Element, onShow: () -> Unit = {}): () -> Unit {
+    Reveal.queue(el, onShow)
+    return { Reveal.forget(el) }
+}
+
+/**
  * Spotlight for a burst moment: `is-lit` while any part of it is in the middle 60% of the viewport (works for
  * bursts taller than the screen too), removed when it leaves, so CSS can fade its collage in and out of shadow.
  * `burst--live` marks that the toggling is running; without it (export snapshot, no JS, reduced motion) a burst
@@ -92,6 +102,7 @@ private const val SETTLE_MS = 600.0
 
 private object Reveal {
     private val pending = mutableListOf<Element>()
+    private val onShow = mutableMapOf<Element, () -> Unit>()
     private var scheduled = false
     private var armedAt = 0.0
 
@@ -102,12 +113,14 @@ private object Reveal {
                 val el = it.target as Element
                 if (window.performance.now() - armedAt < SETTLE_MS) el.classList.remove("fx-armed") else el.classList.add("is-seen")
                 obs.unobserve(el)
+                onShow.remove(el)?.invoke()
             }
         }, js("({ rootMargin: '0px 0px -15% 0px', threshold: 0 })"))
     }
 
-    fun queue(el: Element) {
+    fun queue(el: Element, shown: () -> Unit = {}) {
         pending += el
+        onShow[el] = shown
         if (scheduled) return
         scheduled = true
         // Two frames: Kobweb restores a #fragment's scroll position just after mounting, and the check has to
@@ -116,19 +129,21 @@ private object Reveal {
             window.requestAnimationFrame {
                 scheduled = false
                 val fold = window.innerHeight
-                val below = pending.filter { it.isConnected && it.getBoundingClientRect().top > fold }
+                val (below, shown) = pending.filter { it.isConnected }.partition { it.getBoundingClientRect().top > fold }
                 pending.clear()
                 armedAt = window.performance.now()
                 below.forEach {
                     it.classList.add("fx-armed")
                     io.observe(it)
                 }
+                shown.forEach { onShow.remove(it)?.invoke() }
             }
         }
     }
 
     fun forget(el: Element) {
         pending -= el
+        onShow -= el
         io.unobserve(el)
     }
 }

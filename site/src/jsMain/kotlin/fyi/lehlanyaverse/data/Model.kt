@@ -121,13 +121,40 @@ data class Operation(
     val screenshot: Screenshot? = null,
 )
 
-data class FieldNote(
+/** A paper's look on the evidence board (and in its pop-up). */
+enum class IntelType(val label: String) {
+    NOTE("Field note"),
+    CLIPPING("Clipping"),
+    PHOTO("Photo"),
+    INDEX_CARD("Index card"),
+}
+
+/** Wording on a paper's link button. */
+enum class IntelLinkLabel(val text: String) { VIEW_REPO("View repo"), READ_SOURCE("Read source") }
+
+/** Where a paper's pin goes on the board: [x] as % of its width, [y] as % of its height. */
+data class BoardSpot(val x: Double, val y: Double)
+
+data class IntelPaper(
+    /** Short slug other papers use to link to this one, e.g. "kotlin". Unique. */
+    val id: String,
     val title: String,
-    val note: String,
+    val type: IntelType,
+    /** One line, shown on the board. */
+    val teaser: String,
+    /** A few sentences, shown when the paper is opened. */
+    val summary: String,
     val tags: List<String>,
-    /** ISO date, e.g. "2026-10". */
-    val logged: String,
-    val url: String? = null,
+    /** ISO year-month, e.g. "2026-10". */
+    val date: String? = null,
+    val link: String? = null,
+    val linkLabel: IntelLinkLabel = IntelLinkLabel.READ_SOURCE,
+    /** Ids of related papers: one red string per pair, whichever side declares it. */
+    val linkedTo: List<String> = emptyList(),
+    /** Null: placed in a free spot automatically. */
+    val position: BoardSpot? = null,
+    /** Degrees. Null: a small tilt, cycled. */
+    val rotation: Double? = null,
 )
 
 enum class CommsChannel { EMAIL, LINKEDIN, GITHUB }
@@ -137,4 +164,16 @@ data class CommsLink(
     val label: String,
     val handle: String,
     val url: String,
+)
+
+/** The downloadable CV. [path] is fixed: updating the CV is replacing that file, then [updated] and [size]. */
+data class CvFile(
+    /** Site-relative path under public/, e.g. "/cv/Name_CV.pdf". */
+    val path: String,
+    /** Name the browser saves it as. */
+    val fileName: String,
+    /** ISO year-month, e.g. "2026-10" (shown as "UPDATED OCT 2026"). */
+    val updated: String,
+    /** e.g. "PDF · 90 KB". IntelTest checks it against the real file. */
+    val size: String,
 )

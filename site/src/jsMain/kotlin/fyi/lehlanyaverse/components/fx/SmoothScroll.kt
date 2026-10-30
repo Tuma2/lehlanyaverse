@@ -47,6 +47,8 @@ object SmoothScroll {
     private var viewportW = 0.0
     private var viewportH = 0.0
 
+    private val heavyInOut: (Double) -> Double = { t -> if (t < 0.5) 4 * t * t * t else 1 - (-2 * t + 2).pow(3) / 2 }
+
     private var lastY = Double.NaN
     private var dirty = true
     private var tickQueued = false
@@ -102,6 +104,36 @@ object SmoothScroll {
         return { measureCallbacks -= cb }
     }
 
+    /** The current scroll position, as the frame callbacks see it. */
+    val y: Double
+        get() = lenis?.scroll ?: window.scrollY
+
+    /** True while Lenis drives the page (smooth wheel); false for native scrolling. */
+    val smooth: Boolean
+        get() = lenis != null
+
+    /**
+     * Scrolls the page to [y]: glides with the same heavy easing as [scrollToTarget], or jumps when [immediate]
+     * (keeping the reader in place across a layout change).
+     */
+    fun scrollToY(y: Double, immediate: Boolean = false) {
+        val l = lenis
+        if (l == null) {
+            window.scrollTo(jsObject<dynamic> { top = y; behavior = if (immediate) "instant" else "smooth" })
+            return
+        }
+        // The page may have just grown: Lenis clamps to the limit it last measured
+        l.resize()
+        l.scrollTo(y, jsObject {
+            this.immediate = immediate
+            force = true
+            if (!immediate) {
+                duration = min(1.6, 0.8 + abs(y - l.scroll) / 5000)
+                easing = heavyInOut
+            }
+        })
+    }
+
     /** Pauses smooth scrolling (boot intro, modals). Ref-counted: every lock needs one [unlock]. */
     fun lock() {
         if (locks++ == 0) lenis?.stop()
@@ -133,7 +165,7 @@ object SmoothScroll {
         val distance = abs(target.getBoundingClientRect().top)
         l.scrollTo(target, jsObject {
             duration = min(1.6, 0.8 + distance / 5000)
-            easing = { t -> if (t < 0.5) 4 * t * t * t else 1 - (-2 * t + 2).pow(3) / 2 } // heavy in, heavy out
+            easing = heavyInOut
             onComplete = { arrive() }
         })
     }

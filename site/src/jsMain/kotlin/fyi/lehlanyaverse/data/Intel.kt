@@ -4,7 +4,9 @@ package fyi.lehlanyaverse.data
  * ┌──────────────────────────────────────────────────────────────┐
  * │  LEHLANYAVERSE INTEL: every word on the site lives here.     │
  * │  Add a project: append an Operation to `operations`.         │
- * │  Add a note:    append a FieldNote to `fieldIntel`.          │
+ * │  Add a paper:   append an IntelPaper to `fieldIntel` (give   │
+ * │                 it an id; linkedTo ties it to other papers). │
+ * │  Update CV:     replace public/cv/…pdf, then edit `cv`.      │
  * │  No layout code needs to change. See README.md.              │
  * └──────────────────────────────────────────────────────────────┘
  */
@@ -185,27 +187,102 @@ object Intel {
         ),
     )
 
-    // TODO(sebabatso): these are starter notes. Replace them with your own.
+    // TODO(sebabatso): starter papers. Replace the summaries (and add repo links) with your own.
+    // `position` is where the paper's pin goes, as % of the board (x across, y down); leave it out and the paper
+    // takes a free spot near the papers it links to. `linkedTo` runs red string between papers (either side counts).
     val fieldIntel = listOf(
-        FieldNote(
+        IntelPaper(
+            id = "kotlin",
             title = "Java → Kotlin, one service at a time",
-            note = "Null safety, data classes and coroutines without leaving the JVM or Spring. This site is written in Kotlin too.",
-            tags = listOf("kotlin", "jvm"),
-            logged = "2026-10",
-            url = "https://kotlinlang.org/docs/home.html",
+            type = IntelType.INDEX_CARD,
+            teaser = "Null safety and coroutines without leaving the JVM.",
+            // TODO(sebabatso): summary
+            summary = "Null safety, data classes and coroutines without leaving the JVM or Spring. " +
+                "Migrating one service at a time keeps every release shippable. This site is written in Kotlin too.",
+            tags = listOf("Kotlin", "JVM"),
+            date = "2026-06",
+            link = "https://kotlinlang.org/docs/home.html",
+            position = BoardSpot(13.0, 5.0),
+            rotation = -3.0,
         ),
-        FieldNote(
+        IntelPaper(
+            id = "events",
             title = "Event-driven systems that fail well",
-            note = "Dead-letter queues, idempotent consumers and back-pressure: the unglamorous parts that keep pipelines alive.",
-            tags = listOf("rabbitmq", "architecture"),
-            logged = "2026-10",
-            url = "https://www.rabbitmq.com/tutorials",
+            type = IntelType.CLIPPING,
+            teaser = "Dead letters, idempotency, back-pressure.",
+            // TODO(sebabatso): summary
+            summary = "Dead-letter queues, idempotent consumers and back-pressure: the unglamorous parts that keep " +
+                "pipelines alive when a downstream service has a bad day.",
+            tags = listOf("Messaging", "RabbitMQ", "Architecture"),
+            date = "2026-07",
+            link = "https://www.rabbitmq.com/tutorials",
+            linkedTo = listOf("kotlin"),
+            position = BoardSpot(39.0, 11.0),
+            rotation = 2.0,
         ),
-        FieldNote(
+        IntelPaper(
+            id = "ai-agents",
             title = "AI agents for business automation",
-            note = "Where agents save real hours (grading, admin, reporting) and where a plain script is still the better tool.",
-            tags = listOf("ai", "automation"),
-            logged = "2026-10",
+            type = IntelType.PHOTO,
+            teaser = "Where agents save real hours, and where a script wins.",
+            // TODO(sebabatso): summary
+            summary = "Where agents save real hours (grading, admin, reporting) and where a plain script is still the " +
+                "better tool.",
+            tags = listOf("AI", "Automation"),
+            date = "2026-08",
+            position = BoardSpot(64.0, 4.0),
+            rotation = -1.5,
+        ),
+        IntelPaper(
+            id = "coroutines",
+            title = "Coroutines on the consumer side",
+            type = IntelType.NOTE,
+            teaser = "Structured concurrency for message consumers.",
+            // TODO(sebabatso): summary
+            summary = "Structured concurrency for message consumers: cancellation, back-pressure and not blocking the " +
+                "listener thread.",
+            tags = listOf("Kotlin", "Concurrency", "Messaging"),
+            date = "2026-09",
+            link = "https://kotlinlang.org/docs/coroutines-overview.html",
+            linkedTo = listOf("events", "kotlin"),
+            position = BoardSpot(25.0, 56.0),
+            rotation = 3.0,
+        ),
+        IntelPaper(
+            id = "zero-trust",
+            title = "Zero trust for small teams",
+            type = IntelType.INDEX_CARD,
+            teaser = "ISO 27001 when the security team is one person.",
+            // TODO(sebabatso): summary
+            summary = "What ISO 27001 controls look like when the security team is one person and the auditor still " +
+                "wants evidence.",
+            tags = listOf("Security", "ISO 27001"),
+            date = "2026-10",
+            position = BoardSpot(87.0, 9.0),
+            rotation = 2.5,
+        ),
+        IntelPaper(
+            id = "zero-trust-ic2",
+            title = "Zero trust for ISC2",
+            type = IntelType.CLIPPING,
+            teaser = "Zero trust, the ISC2 way.",
+            // TODO(sebabatso): summary (this one was a copy of "Zero trust for small teams")
+            summary = "TODO: what this note covers for ISC2, and how it differs from the small-team take.",
+            tags = listOf("Security", "ISC2"),
+            date = "2026-10",
+            linkedTo = listOf("zero-trust"),
+        ),
+        IntelPaper(
+            id = "eval-bots",
+            title = "Testing bots that mark work",
+            type = IntelType.NOTE,
+            teaser = "How to trust an automated grader.",
+            // TODO(sebabatso): summary, and a repo link (linkLabel = IntelLinkLabel.VIEW_REPO) if there is one
+            summary = "How to trust an automated grader: golden answer sets, spot checks and flagging low-confidence " +
+                "marks for a human.",
+            tags = listOf("AI", "Testing"),
+            date = "2026-10",
+            linkedTo = listOf("ai-agents"),
         ),
     )
 
@@ -213,5 +290,13 @@ object Intel {
         CommsLink(CommsChannel.EMAIL, "EMAIL", "moleele25@gmail.com", "mailto:moleele25@gmail.com"),
         CommsLink(CommsChannel.LINKEDIN, "LINKEDIN", "in/sebabatso-moleele", "https://www.linkedin.com/in/sebabatso-moleele"),
         CommsLink(CommsChannel.GITHUB, "GITHUB", "Tuma2", "https://github.com/Tuma2"),
+    )
+
+    // Replace the file (same name), then update `updated` and `size`. IntelTest checks the size against the file
+    val cv = CvFile(
+        path = "/cv/Sebabatso_Moleele_CV.pdf",
+        fileName = "Sebabatso_Moleele_CV.pdf",
+        updated = "2026-10",
+        size = "PDF · 45 KB",
     )
 }

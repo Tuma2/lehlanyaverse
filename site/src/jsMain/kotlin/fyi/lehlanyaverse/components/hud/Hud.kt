@@ -177,18 +177,38 @@ fun Time(datetime: String, content: ContentBuilder<HTMLElement>) {
     TagElement<HTMLElement>("time", { attr("datetime", datetime) }, content)
 }
 
+private val months = listOf("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+
+/** "2026-10" → "OCT 2026"; a bare year stays as it is. */
+internal fun monthLabel(iso: String): String {
+    val parts = iso.split("-")
+    val m = parts.getOrNull(1)?.toIntOrNull()
+    return if (m != null && m in 1..12) "${months[m - 1]} ${parts[0]}" else parts[0]
+}
+
 enum class BtnStyle(val cls: String?) { STEEL(null), SIGNAL("btn--signal"), SOLID("btn--solid") }
 
-/** External link styled as a button. Same tab (no surprise windows), and no referrer/opener leakage. */
+/**
+ * External link styled as a button, with no referrer/opener leakage. Same tab unless [newTab] (for links out of a
+ * pop-up, where leaving the page would lose the visitor's place).
+ */
 @Composable
-fun ExtButton(href: String, label: String, style: BtnStyle = BtnStyle.STEEL, ariaLabel: String? = null) {
+fun ExtButton(
+    href: String,
+    label: String,
+    style: BtnStyle = BtnStyle.STEEL,
+    ariaLabel: String? = null,
+    newTab: Boolean = false,
+    arrow: String = "→",
+) {
     A(href, {
         classes(*listOfNotNull("btn", style.cls).toTypedArray())
+        if (newTab) attr("target", "_blank")
         attr("rel", "noopener noreferrer")
         ariaLabel?.let { attr("aria-label", it) }
     }) {
         Text(label)
-        Span({ classes("btn__arrow"); attr("aria-hidden", "true") }) { Text("→") }
+        Span({ classes("btn__arrow"); attr("aria-hidden", "true") }) { Text(arrow) }
     }
 }
 

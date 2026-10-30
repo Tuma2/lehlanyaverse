@@ -3,6 +3,7 @@ package fyi.lehlanyaverse.components.sections
 import androidx.compose.runtime.Composable
 import fyi.lehlanyaverse.components.hud.Accent
 import fyi.lehlanyaverse.components.hud.Deco
+import fyi.lehlanyaverse.components.hud.Dossier
 import fyi.lehlanyaverse.components.hud.Hazard
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
@@ -26,7 +27,7 @@ fun Comms() {
     Section({ id("comms"); attr("aria-labelledby", "comms-title") }) {
         SectionHead("07", "Comms", "Contact // open a channel", "comms-title")
         Panel(accent = Accent.SIGNAL, extraClasses = listOf("comms")) {
-            PanelBar("CHANNELS" to "${Intel.comms.size} OPEN", "BAND" to "EMAIL + SOCIAL")
+            PanelBar("CHANNELS" to "${Intel.comms.size + 1} OPEN", "BAND" to "EMAIL + SOCIAL + FILE")
             P({ classes("comms__lede") }) {
                 Text("Hiring, collaborating or just want to talk backend systems? Pick a channel.")
             }
@@ -44,6 +45,13 @@ fun Comms() {
                         }
                     }
                 }
+            }
+            // The CV rides alongside the channels as the next one
+            Div({ classes("comms__dossier") }) {
+                Span({ classes("readout", "comms__dossier-idx") }) {
+                    Text("CH-${(Intel.comms.size + 1).toString().padStart(2, '0')} // Dossier")
+                }
+                Dossier()
             }
             Div({ classes("comms__stamp") }) { Stamp("Transmission open", StampInk.SIGNAL, small = true) }
         }
