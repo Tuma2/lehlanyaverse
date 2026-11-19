@@ -21,8 +21,8 @@ object Intel {
         status = "ACTIVE DUTY",
         // false: the beacon goes dim and reads "ON ASSIGNMENT"
         openToOpportunities = true,
-        availabilityNote = "Roles: Backend / Java / Kotlin — Johannesburg or remote",
-        clearance = "LEVEL 4 // BACKEND",
+        availabilityNote = "Roles: Software engineering — Java, Python, Kotlin, JS — Johannesburg or remote",
+        clearance = "LEVEL 4 // ENGINEERING",
         bioHeading = "Subject assessment // Operator S. Moleele",
         languages = listOf("Java", "Python", "Kotlin", "JavaScript"),
         // `**…**` renders bold. No status line: the OPEN TO OPPORTUNITIES beacon covers status
