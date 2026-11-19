@@ -1179,6 +1179,7 @@ html[data-boot] body::after {
   display: inline-flex;
   align-items: center;
   gap: 0.75rem;
+  max-width: 100%; /* never wider than its card: the text wraps instead (phones) */
   min-height: 44px;
   padding: 0.5rem 1rem 0.55rem 0.55rem;
   border: 2px solid var(--signal);
@@ -1236,6 +1237,7 @@ html[data-boot] body::after {
 .dossier__text {
   display: grid;
   gap: 0.15rem;
+  min-width: 0;
   line-height: 1.2;
 }
 
@@ -1248,6 +1250,20 @@ html[data-boot] body::after {
   grid-area: 1 / 1;
   visibility: hidden;
   white-space: nowrap;
+}
+
+/* Full button only: on a card narrower than the label, wrap between words instead of overflowing (phones).
+   The states still share one cell, so the width stays steady while they swap. */
+.dossier__text .dossier__state {
+  white-space: normal;
+}
+
+/* Phones: a touch less tracking so the longest state ("Dossier extracted ✓") stays on one line where it can,
+   instead of reserving an empty second line under "Extract dossier" */
+@media (max-width: 30rem) {
+  .dossier__text .dossier__label {
+    letter-spacing: 0.08em;
+  }
 }
 
 .dossier__btn[data-state="idle"] .dossier__state--idle,
@@ -1272,7 +1288,8 @@ html[data-boot] body::after {
   font-size: 0.625rem;
   letter-spacing: 0.12em;
   color: var(--dim);
-  white-space: nowrap;
+  /* Wraps only when the card is too narrow, and then only after a "·" (Dossier.kt makes the rest non-breaking) */
+  white-space: normal;
 }
 
 /* Progress line along the foot, scaled from the left */

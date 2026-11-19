@@ -17,6 +17,14 @@ import org.jetbrains.compose.web.dom.Text
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+/**
+ * "CV · PDF · 63 KB · Updated NOV 2026". On a narrow card it may wrap, but only after a "·": spaces inside a part
+ * are non-breaking, so "63 KB" or "NOV 2026" never split across lines.
+ */
+private fun subLine(size: String, month: String): String =
+    (listOf("CV") + size.split(" · ") + "Updated $month")
+        .joinToString(" · ") { it.replace(' ', ' ') }
+
 /** [FULL]: label, subline and VIEW link (hero, COMMS, maintenance). [COMPACT]: bracketed icon + "CV" (header). */
 enum class DossierVariant { FULL, COMPACT }
 
@@ -88,7 +96,7 @@ fun Dossier(variant: DossierVariant = DossierVariant.FULL) {
                         }
                         Span({ classes("dossier__state", "dossier__state--done") }) { Text("Dossier extracted ✓") }
                     }
-                    Span({ classes("dossier__sub") }) { Text("CV · ${cv.size.substringBefore(" ·")} · Updated ${monthLabel(cv.updated)}") }
+                    Span({ classes("dossier__sub") }) { Text(subLine(cv.size, monthLabel(cv.updated))) }
                 }
             }
             // Progress line along the foot: scaled, never resized
