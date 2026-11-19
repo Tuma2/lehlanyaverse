@@ -10,7 +10,6 @@ data class Operator(
     /** Rendered as a redaction bar that declassifies on hover / focus. */
     val callsign: String,
     val role: String,
-    val specialty: String,
     val location: String,
     val coordinates: String,
     val status: String,
@@ -18,6 +17,11 @@ data class Operator(
     val openToOpportunities: Boolean,
     /** Tooltip on the beacon while [openToOpportunities] is true. */
     val availabilityNote: String,
+    /** Mono label above the hero brief, e.g. "Subject assessment // Operator S. Moleele". */
+    val bioHeading: String,
+    /** Shown in order as HUD tags under [bioHeading]. */
+    val languages: List<String>,
+    /** Hero brief, one entry per paragraph. `**text**` renders bold; nothing else is parsed. */
     val bio: List<String>,
     val clearance: String,
     /** Headline numbers for the profile card, e.g. Stat("4+", "Years in the field"). */

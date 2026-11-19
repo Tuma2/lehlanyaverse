@@ -21,12 +21,16 @@ import fyi.lehlanyaverse.components.hud.TypeLine
 import fyi.lehlanyaverse.components.hud.litOnView
 import fyi.lehlanyaverse.data.Intel
 import org.jetbrains.compose.web.dom.A
+import org.jetbrains.compose.web.dom.B
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.H1
+import org.jetbrains.compose.web.dom.H2
+import org.jetbrains.compose.web.dom.Li
 import org.jetbrains.compose.web.dom.P
 import org.jetbrains.compose.web.dom.Section
 import org.jetbrains.compose.web.dom.Span
 import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.Ul
 
 /**
  * 01 // OPERATOR PROFILE: the hero, and the first burst moment. A layered case-file collage around the ID card,
@@ -61,13 +65,18 @@ fun OperatorProfile() {
                 }
                 Div({ classes("hero__role") }) {
                     Span({ classes("hero__role-chip") }) { Text(op.role) }
-                    Span({ classes("hero__role-chip", "hero__role-chip--ghost") }) { Text(op.specialty) }
                 }
 
                 Panel(accent = Accent.INK, extraClasses = listOf("hero__bio-panel"), attrs = { style { property("margin-top", "2rem") } }) {
                     PanelBar("BRIEF" to "OPERATOR SUMMARY", "SRC" to "HQ // JHB")
                     Div({ classes("hero__bio") }) {
-                        op.bio.forEach { P { Text(it) } }
+                        H2({ classes("readout", "hero__bio-head") }) { Text(op.bioHeading) }
+                        if (op.languages.isNotEmpty()) {
+                            Ul({ classes("chips", "hero__langs"); attr("role", "list"); attr("aria-label", "Languages") }) {
+                                op.languages.forEach { Li({ classes("chip") }) { Text(it) } }
+                            }
+                        }
+                        op.bio.forEach { P { RichText(it) } }
                     }
                     Div({ classes("hero__actions") }) {
                         A("#loadout", { classes("btn", "btn--solid") }) {
@@ -139,9 +148,9 @@ private fun Collage() {
             Span({ classes("collage__dossier-head") }) { Text("SUBJECT FILE // 0001") }
             RedactedLines(
                 "Subject operates out of #johannesburg under",
-                "callsign #lehlanya. Backend asset, Java and",
-                "Kotlin. Contact via #comms only. Handler",
-                "notes: #reliable, #mentors #juniors.",
+                "callsign #lehlanya. Software asset: Java,",
+                "Python, Kotlin, JS. Contact via #comms only.",
+                "Handler notes: #reliable, #mentors #juniors.",
             )
         }
         Layer("collage__halftone")
@@ -149,7 +158,7 @@ private fun Collage() {
             Span({ classes("collage__print-ink") })
             Span({ classes("collage__print-label") }) { Text("R. INDEX // LIFTED 02:14") }
         }
-        Layer("collage__clip", "collage__clip--a", rot = 5) { Text("Backend operative sighted in JHB") }
+        Layer("collage__clip", "collage__clip--a", rot = 5) { Text("Operative sighted in JHB") }
         Layer("collage__clip", "collage__clip--b", rot = -4) { Text("Asset still active") }
         Layer("collage__stamp", "collage__stamp--a", rot = -18) { Stamp("Eyes only", StampInk.AMBER, small = true) }
         Layer("collage__stamp", "collage__stamp--b", rot = 13) { Stamp("Copy 02/07", StampInk.STEEL, small = true) }
@@ -179,7 +188,7 @@ private fun IdCard() {
                 Dossier()
             }
             Div({ classes("idcard__rows") }) {
-                IdRow("Role") { Text("${op.role} // ${op.specialty}") }
+                IdRow("Role") { Text(op.role) }
                 IdRow("AO") { Text(op.location) }
                 IdRow("Grid") { Text(op.coordinates) }
             }
@@ -189,6 +198,14 @@ private fun IdCard() {
             Stamp("Declassified", StampInk.AMBER, small = true)
         }
     }
+}
+
+/** Text with `**bold**` spans (Intel bio markup). Unpaired `**` is left as plain text. */
+@Composable
+private fun RichText(text: String) {
+    val parts = text.split("**")
+    if (parts.size % 2 == 0) { Text(text); return } // odd number of markers: don't guess
+    parts.forEachIndexed { i, part -> if (i % 2 == 1) B { Text(part) } else if (part.isNotEmpty()) Text(part) }
 }
 
 @Composable

@@ -1977,9 +1977,25 @@ html[data-flipped] .pstack__hint {
   max-width: 62ch;
 }
 
-.hero__bio p:first-child {
+/* The brief's lead paragraph (after the heading and language tags) */
+.hero__bio p:first-of-type {
   font-size: var(--fs-lg);
   color: var(--ink);
+}
+
+/* SUBJECT ASSESSMENT // … : the panel's mono label style */
+.hero__bio-head {
+  color: var(--steel-hi);
+}
+
+/* Language tags sit tight under the heading */
+.hero__langs {
+  margin-top: -0.35rem;
+}
+
+.hero__bio b {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .hero__actions {

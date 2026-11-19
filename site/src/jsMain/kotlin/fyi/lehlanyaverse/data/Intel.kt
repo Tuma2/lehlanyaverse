@@ -16,7 +16,6 @@ object Intel {
         name = "Sebabatso Moleele",
         callsign = "LEHLANYA",
         role = "Software Engineer",
-        specialty = "Java Backend",
         location = "Johannesburg, ZA",
         coordinates = "26.2041°S 28.0473°E",
         status = "ACTIVE DUTY",
@@ -24,14 +23,15 @@ object Intel {
         openToOpportunities = true,
         availabilityNote = "Roles: Backend / Java / Kotlin — Johannesburg or remote",
         clearance = "LEVEL 4 // BACKEND",
+        bioHeading = "Subject assessment // Operator S. Moleele",
+        languages = listOf("Java", "Python", "Kotlin", "JavaScript"),
+        // `**…**` renders bold. No status line: the OPEN TO OPPORTUNITIES beacon covers status
         bio = listOf(
-            "Java backend engineer with 4+ years of commercial experience in Java and REST API development, " +
-                "shipping production systems across fintech and edtech, including integrations with Bankserv, HANIS " +
-                "and Active Directory. Now transitioning into Kotlin.",
-            "Strong in Spring Boot, system design, RabbitMQ/Kafka messaging and MongoDB/MySQL data modelling; " +
-                "writes well-tested code with JUnit, Mockito and pytest, and automates business functions with Java, " +
-                "Python and AI agents.",
-            "Security-first, Agile, and a mentor to junior developers.",
+            "Operator is a highly capable software engineer and multi-language technical asset, operating across " +
+                "**Java, Python, Kotlin and JavaScript**. Four-plus years in the field, deploying production systems " +
+                "in fintech and edtech, from payment integrations to real-time analytics platforms. Assessed as a " +
+                "high-level problem solver with sharp critical thinking, able to break complex systems down and " +
+                "rebuild them reliably. Security-first mindset. Mentors junior field agents.",
         ),
         stats = listOf(
             Stat("4+", "Years commercial Java"),

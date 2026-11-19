@@ -1,6 +1,7 @@
 # LEHLANYAVERSE
 
-Personal portfolio of **Sebabatso Moleele**, a Java backend engineer, framed as a tactical mission dossier.
+Personal portfolio of **Sebabatso Moleele**, a software engineer working across Java, Python, Kotlin and
+JavaScript, framed as a tactical mission dossier.
 Live at **https://lehlanyaverse.fyi**.
 
 Written in **Kotlin** with [Kobweb](https://kobweb.varabyte.com) (Compose HTML) and shipped as a **static export**:

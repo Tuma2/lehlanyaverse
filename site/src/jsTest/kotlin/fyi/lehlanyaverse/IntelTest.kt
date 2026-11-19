@@ -30,6 +30,11 @@ class IntelTest {
         val op = Intel.operator
         listOf(op.name, op.callsign, op.role, op.location, op.status, op.availabilityNote).forEach { assertTrue(it.isNotBlank()) }
         assertTrue(op.bio.isNotEmpty())
+        assertTrue(op.bioHeading.isNotBlank(), "The hero brief needs a heading")
+        assertTrue(op.languages.isNotEmpty(), "The hero brief needs at least one language tag")
+        op.bio.forEach { assertEquals(0, it.split("**").size % 2 - 1, "Unpaired ** (bold) in bio: '$it'") }
+        // The site presents a broad software engineer, not a Java-only specialist
+        assertFalse("java backend" in (op.toString()).lowercase(), "\"Java Backend\" framing is back in the operator data")
         Intel.operations.forEach { o ->
             assertTrue(o.title.isNotBlank() && o.summary.isNotBlank(), "Operation ${o.slug} needs a title and summary")
             assertTrue(o.objectives.isNotEmpty(), "Operation ${o.slug} needs at least one objective")

@@ -44,7 +44,7 @@ kobweb {
     app {
         index {
             lang.set("en")
-            description.set("Sebabatso Moleele: Java backend software engineer in Johannesburg. Mission dossier, loadout and active operations.")
+            description.set("Sebabatso Moleele: software engineer in Johannesburg working across Java, Python, Kotlin and JavaScript. Mission dossier, loadout and active operations.")
             faviconPath.set("/favicon.svg")
             // Pages are pre-rendered, so the app bundle never needs to block first paint: Kobweb emits it as an
             // inert script and src/head/boot.js starts it on the frame after first paint

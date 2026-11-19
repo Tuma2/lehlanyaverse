@@ -22,8 +22,9 @@ import fyi.lehlanyaverse.data.Intel
 fun HomePage() {
     val op = Intel.operator
     Seo(
-        title = "${op.name}: ${op.role}, ${op.specialty} // $SITE_NAME",
-        description = "Mission dossier of ${op.name}, a ${op.specialty.lowercase()} software engineer in ${op.location}: " +
+        title = "${op.name}: ${op.role} // $SITE_NAME",
+        description = "Mission dossier of ${op.name}, a ${op.role.lowercase()} in ${op.location} working across " +
+            "${op.languages.dropLast(1).joinToString(", ")} and ${op.languages.last()}: " +
             "loadout, service record, commendations and active operations.",
         path = "/",
     )

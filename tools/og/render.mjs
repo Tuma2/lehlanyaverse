@@ -24,7 +24,6 @@ const operations = intel.split(/\bOperation\(/).slice(1).map((block) => ({
 })).filter((op) => op.slug);
 const name = str(intel, "name") ?? "Sebabatso Moleele";
 const role = str(intel, "role") ?? "Software Engineer";
-const specialty = str(intel, "specialty") ?? "Java Backend";
 
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 // Inlined as data URIs: pages built with setContent() cannot load file:// resources
@@ -80,7 +79,7 @@ async function render(html, file, size) {
   await page.screenshot({ path: file });
 }
 
-await render(card({ kicker: "OPERATOR PROFILE", title: name, sub: `${role} // ${specialty}`, tag: "ACTIVE DUTY", tagColor: "#7cffb2" }),
+await render(card({ kicker: "OPERATOR PROFILE", title: name, sub: role, tag: "ACTIVE DUTY", tagColor: "#7cffb2" }),
   join(pub, "og/og-default.png"));
 for (const op of operations) {
   const color = op.status === "DEPLOYED" ? "#7cffb2" : op.status === "IN PROGRESS" ? "#a3b8c8" : "#e2a43a";
