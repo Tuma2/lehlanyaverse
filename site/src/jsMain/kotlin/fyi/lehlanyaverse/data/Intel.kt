@@ -158,36 +158,37 @@ object Intel {
         Commendation("National Senior Certificate", "Gimnasium", CommendationKind.EDUCATION, CommendationGroup.EDUCATION, awarded = 2016),
     )
 
+    /** Public HackerRank profile: the COMMS channel, "View profile", and where every badge is verified. */
+    val hackerRankProfileUrl: String? = "https://www.hackerrank.com/profile/moleele25"
+
     /*
-     * HackerRank skill assessments: COMMENDATIONS "Field assessments" + VERIFIED markers in LOADOUT.
-     * Fill in each `level` and `verifyUrl` (the certificate's public link). Until then the card shows no level
-     * stamp, no VERIFY link, and its LOADOUT skill gets no marker. Remaining TODOs are listed in the build output.
+     * HackerRank skill badges: COMMENDATIONS "Field assessments" + VERIFIED markers in LOADOUT.
+     * Badges have no individual links, so each one is verified on the profile above. Set `stars` (1–5) from the
+     * profile; until then a card shows no stars. Remaining TODOs are listed in the build output.
+     * (A certificate would instead take `kind = CERTIFICATE`, a `level` and its own `verifyUrl`.)
      */
     val skillAssessments = listOf(
         SkillAssessment(
-            name = "Problem Solving", relatedSkill = "System design",
-            level = null, // TODO(sebabatso): HackerRank Problem Solving level (BASIC / INTERMEDIATE / ADVANCED)
-            verifyUrl = null, // TODO(sebabatso): HackerRank Problem Solving verify URL
+            name = "Problem Solving", relatedSkill = "System design", kind = AssessmentKind.BADGE,
+            stars = 4,
+            verifyUrl = hackerRankProfileUrl,
         ),
         SkillAssessment(
-            name = "SQL", relatedSkill = "MySQL",
-            level = null, // TODO(sebabatso): HackerRank SQL level
-            verifyUrl = null, // TODO(sebabatso): HackerRank SQL verify URL
+            name = "SQL", relatedSkill = "MySQL", kind = AssessmentKind.BADGE,
+            stars = 4,
+            verifyUrl = hackerRankProfileUrl,
         ),
         SkillAssessment(
-            name = "Java", relatedSkill = "Java",
-            level = null, // TODO(sebabatso): HackerRank Java level
-            verifyUrl = null, // TODO(sebabatso): HackerRank Java verify URL
+            name = "Java", relatedSkill = "Java", kind = AssessmentKind.BADGE,
+            stars = 2,
+            verifyUrl = hackerRankProfileUrl,
         ),
         SkillAssessment(
-            name = "Python", relatedSkill = "Python (FastAPI)",
-            level = null, // TODO(sebabatso): HackerRank Python level
-            verifyUrl = null, // TODO(sebabatso): HackerRank Python verify URL
+            name = "Python", relatedSkill = "Python (FastAPI)", kind = AssessmentKind.BADGE,
+            stars = 2,
+            verifyUrl = hackerRankProfileUrl,
         ),
     )
-
-    /** Public HackerRank profile. While null there is no COMMS channel and no "View profile" link. */
-    val hackerRankProfileUrl: String? = null // TODO(sebabatso): HackerRank profile URL, https://www.hackerrank.com/profile/<you>
 
     val operations = listOf(
         Operation(

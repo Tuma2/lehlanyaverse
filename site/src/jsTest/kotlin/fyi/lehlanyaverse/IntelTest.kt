@@ -119,7 +119,11 @@ class IntelTest {
         Intel.skillAssessments.forEach { a ->
             assertTrue(a.relatedSkill in loadoutNames, "'${a.name}' backs '${a.relatedSkill}', which isn't a LOADOUT skill: $loadoutNames")
             when (a.kind) {
-                AssessmentKind.BADGE -> assertTrue(a.stars in 1..5, "'${a.name}' badge needs 1–5 stars, has ${a.stars}")
+                // Null stars = TODO (shown as none); a set value must be 1–5. Levels belong to certificates
+                AssessmentKind.BADGE -> {
+                    a.stars?.let { assertTrue(it in 1..5, "'${a.name}' badge needs 1–5 stars, has $it") }
+                    assertEquals(null, a.level, "'${a.name}' is a badge: levels are for certificates (use stars)")
+                }
                 AssessmentKind.CERTIFICATE -> assertEquals(null, a.stars, "'${a.name}' is a certificate: stars are for badges")
             }
             a.verifyUrl?.let { assertTrue(Regex("""^https://(www\.)?hackerrank\.com/""").containsMatchIn(it), "'${a.name}' verify URL should be a hackerrank.com link: $it") }

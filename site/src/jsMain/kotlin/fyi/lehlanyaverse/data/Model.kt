@@ -119,24 +119,30 @@ data class SkillAssessment(
     val kind: AssessmentKind = AssessmentKind.CERTIFICATE,
     /** Null (TODO): no level stamp is shown. */
     val level: AssessmentLevel? = null,
-    /** [AssessmentKind.BADGE] only, 1–5. */
+    /** [AssessmentKind.BADGE] only, 1–5. Null (TODO): no stars shown. */
     val stars: Int? = null,
     val issuer: String = "HackerRank",
-    /** Public verification link. Null (TODO): no VERIFY link and no LOADOUT marker, rather than a broken link. */
+    /**
+     * Where to verify it. A certificate has its own public link; a badge has none, so it points at the profile
+     * that shows it. Null (TODO): no VERIFY link and no LOADOUT marker, rather than a broken link.
+     */
     val verifyUrl: String? = null,
 ) {
     val isVerifiable: Boolean get() = verifyUrl != null
 
-    /** e.g. "HackerRank Java (Intermediate)", or "HackerRank Java (3★)" for a badge. */
+    /** e.g. "HackerRank Java (Intermediate)" for a certificate, "HackerRank Java badge (3★)" for a badge. */
     val proofLabel: String
-        get() = "$issuer $name" + when {
-            kind == AssessmentKind.BADGE && stars != null -> " (${stars}★)"
-            level != null -> " (${level.label})"
-            else -> ""
+        get() = when (kind) {
+            AssessmentKind.BADGE -> "$issuer $name badge" + (stars?.let { " (${it}★)" } ?: "")
+            AssessmentKind.CERTIFICATE -> "$issuer $name" + (level?.let { " (${it.label})" } ?: "")
         }
 
-    /** Accessible name for verify links, e.g. "Verify HackerRank Java certificate (opens in new tab)". */
-    val verifyLabel: String get() = "Verify $issuer $name ${kind.noun} (opens in new tab)"
+    /** Accessible name for verify links; a badge is verified on the profile, so it says so. */
+    val verifyLabel: String
+        get() = when (kind) {
+            AssessmentKind.BADGE -> "Verify $issuer $name badge on profile (opens in new tab)"
+            AssessmentKind.CERTIFICATE -> "Verify $issuer $name certificate (opens in new tab)"
+        }
 }
 
 enum class OpStatus(val label: String, val code: String) {
