@@ -39,10 +39,15 @@ data class Skill(
     val name: String,
     /** 0–100. Rendered as a proficiency bar with the number shown alongside. */
     val proficiency: Int,
+    /** Optional one-line qualifier shown under the name, e.g. what the skill covers. */
+    val note: String? = null,
 )
 
+/** Slots render in this order: primary, integration, testing, secondary, equipment, sidearms. */
 data class Loadout(
     val primary: List<Skill>,
+    val integration: List<Skill>,
+    val testing: List<Skill>,
     val secondary: List<Skill>,
     val sidearms: List<Skill>,
     val equipment: List<Skill>,

@@ -26,10 +26,12 @@ object Intel {
         clearance = "LEVEL 4 // BACKEND",
         bio = listOf(
             "Java backend engineer with 4+ years of commercial experience in Java and REST API development, " +
-                "shipping production systems across fintech and edtech. Transitioning into Kotlin.",
-            "Strong in Spring Boot, REST API design, system design, event-driven messaging with RabbitMQ and " +
-                "MongoDB/MySQL data modelling. Automates business functions with Java, Python and AI agents.",
-            "Security-first. Mentors juniors and interns.",
+                "shipping production systems across fintech and edtech, including integrations with Bankserv, HANIS " +
+                "and Active Directory. Now transitioning into Kotlin.",
+            "Strong in Spring Boot, system design, RabbitMQ/Kafka messaging and MongoDB/MySQL data modelling; " +
+                "writes well-tested code with JUnit, Mockito and pytest, and automates business functions with Java, " +
+                "Python and AI agents.",
+            "Security-first, Agile, and a mentor to junior developers.",
         ),
         stats = listOf(
             Stat("4+", "Years commercial Java"),
@@ -46,6 +48,7 @@ object Intel {
     )
 
     // TODO(sebabatso): proficiency values are estimates. Adjust to taste (0–100).
+    // Scale: high ≈ 70–90, medium = 55. Only pytest, Kotlin and Python sit at medium (IntelTest checks this).
     val loadout = Loadout(
         primary = listOf(
             Skill("Java", 90),
@@ -57,16 +60,29 @@ object Intel {
             Skill("MySQL", 75),
             Skill("System design", 72),
             Skill("RabbitMQ", 70),
+            Skill("Kafka (event-driven / async messaging)", 70),
+        ),
+        integration = listOf(
+            Skill("REST/JSON APIs over HTTPS", 88),
+            Skill("Third-party system integration (Bankserv, HANIS, Active Directory)", 85),
+            Skill("Batch & real-time data sync", 82),
+        ),
+        testing = listOf(
+            Skill("JUnit", 85),
+            Skill("Unit & integration testing", 85),
+            Skill("Mockito", 82),
+            Skill("API testing", 82),
+            Skill("pytest", 55, note = "Unit & integration testing in Python (fixtures, pytest-mock, respx, testcontainers)"),
         ),
         secondary = listOf(
-            Skill("Kotlin", 50),
-            Skill("Python", 85),
+            Skill("Kotlin", 55),
+            Skill("Python (FastAPI)", 55),
         ),
         sidearms = listOf(
+            Skill("HTML/CSS", 70),
             Skill("JavaScript", 65),
             Skill("Angular", 55),
             Skill("React", 45),
-            Skill("FastAPI", 75),
             Skill("Django", 40),
         ),
         equipment = listOf(
@@ -76,6 +92,8 @@ object Intel {
             Skill("Microsoft 365 / Teams Admin Center", 70),
             Skill("Gradle", 65),
             Skill("AWS", 60),
+            Skill("GitHub Actions (CI/CD)", 70),
+            Skill("Linux", 70),
         ),
     )
 

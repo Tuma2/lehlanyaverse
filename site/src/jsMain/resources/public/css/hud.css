@@ -878,6 +878,15 @@ html[data-boot] body::after {
 .meter__label {
   font-size: var(--fs-sm);
   font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.meter__note {
+  grid-column: 1 / -1;
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+  opacity: 0.75;
+  overflow-wrap: anywhere;
 }
 
 .meter__val {

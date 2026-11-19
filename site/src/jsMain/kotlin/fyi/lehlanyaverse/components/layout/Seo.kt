@@ -64,10 +64,13 @@ private fun link(rel: String, href: String) {
 fun PersonJsonLd() {
     SideEffect {
         val op = Intel.operator
+        val l = Intel.loadout
+        val knowsAbout = (l.primary + l.testing + l.secondary).map { it.name }.distinct()
+            .joinToString(",") { "\"${it.replace("\"", "\\\"")}\"" }
         val sameAs = Intel.comms.filter { it.url.startsWith("https://") }.joinToString(",") { "\"${it.url}\"" }
         val json = """{"@context":"https://schema.org","@type":"Person","name":"${op.name}","alternateName":"${op.callsign}",""" +
             """"jobTitle":"${op.role}","url":"$SITE_URL","address":{"@type":"PostalAddress","addressLocality":"Johannesburg","addressCountry":"ZA"},""" +
-            """"knowsAbout":[${Intel.loadout.primary.joinToString(",") { "\"${it.name}\"" }}],"sameAs":[$sameAs]}"""
+            """"knowsAbout":[$knowsAbout],"sameAs":[$sameAs]}"""
         upsert("script[type=\"application/ld+json\"]") {
             document.createElement("script").apply { setAttribute("type", "application/ld+json") }
         }.textContent = json

@@ -60,8 +60,19 @@ class IntelTest {
     @Test
     fun proficienciesAreInRange() {
         val l = Intel.loadout
-        (l.primary + l.secondary + l.sidearms + l.equipment).forEach {
+        (l.primary + l.integration + l.testing + l.secondary + l.sidearms + l.equipment).forEach {
             assertTrue(it.proficiency in 0..100, "${it.name} proficiency ${it.proficiency} is outside 0–100")
+        }
+    }
+
+    @Test
+    fun onlyTheCvMediumSkillsSitBelowHigh() {
+        // Per the CV, only pytest, Kotlin and Python are medium; everything else in these slots is high (70+)
+        val medium = setOf("pytest", "Kotlin", "Python (FastAPI)")
+        val l = Intel.loadout
+        (l.primary + l.integration + l.testing + l.secondary).forEach {
+            if (it.name in medium) assertTrue(it.proficiency in 40..69, "${it.name} should be medium, is ${it.proficiency}")
+            else assertTrue(it.proficiency >= 70, "${it.name} should be high (70+), is ${it.proficiency}")
         }
     }
 

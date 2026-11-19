@@ -29,15 +29,23 @@ fun Loadout() {
                 accent = Accent.SIGNAL, tone = MeterTone.SIGNAL, extra = "loadout__primary",
             )
             Slot(
-                slot = "2", title = "Secondary", sub = "Currently in training", skills = l.secondary,
+                slot = "2", title = "Integration", sub = "Systems linked in the field", skills = l.integration,
+                accent = Accent.STEEL, tone = MeterTone.STEEL, tilt = Tilt.LEFT,
+            )
+            Slot(
+                slot = "3", title = "Testing", sub = "Verification protocols", skills = l.testing,
+                accent = Accent.MUTED, tone = MeterTone.MUTED, tilt = Tilt.RIGHT,
+            )
+            Slot(
+                slot = "4", title = "Secondary", sub = "Currently in training", skills = l.secondary,
                 accent = Accent.STEEL, tone = MeterTone.STEEL, tilt = Tilt.RIGHT,
             )
             Slot(
-                slot = "3", title = "Equipment", sub = "Tools & platforms", skills = l.equipment,
+                slot = "5", title = "Equipment", sub = "Tools & platforms", skills = l.equipment,
                 accent = Accent.MUTED, tone = MeterTone.MUTED, tilt = Tilt.LEFT,
             )
             Slot(
-                slot = "4", title = "Sidearms", sub = "Familiar, field-tested", skills = l.sidearms,
+                slot = "6", title = "Sidearms", sub = "Familiar, field-tested", skills = l.sidearms,
                 accent = Accent.INK, tone = MeterTone.INK, extra = "loadout__sidearms",
             )
         }
@@ -72,7 +80,7 @@ private fun Slot(
             }
         }
         Div({ classes("loadout__meters") }) {
-            skills.forEach { Meter(it.name, it.proficiency, tone) }
+            skills.forEach { Meter(it.name, it.proficiency, tone, it.note) }
         }
     }
 }

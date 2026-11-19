@@ -128,11 +128,12 @@ enum class MeterTone(val cls: String?) { SIGNAL(null), STEEL("meter--steel"), MU
 
 /** Segmented proficiency bar, exposed as an ARIA meter with the number also shown visually. */
 @Composable
-fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.SIGNAL) {
+fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.SIGNAL, note: String? = null) {
     val v = value.coerceIn(0, 100)
     Div({ classes(*listOfNotNull("meter", tone.cls).toTypedArray()); markWhenSeen() }) {
         Span({ classes("meter__label") }) { Text(label) }
         Span({ classes("meter__val"); attr("aria-hidden", "true") }) { Text(v.toString().padStart(3, '0')) }
+        if (note != null) Span({ classes("meter__note") }) { Text(note) }
         Div({
             classes("meter__track")
             attr("role", "meter")
