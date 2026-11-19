@@ -315,6 +315,6 @@ object Intel {
     val cv = CvFile(
         path = "/cv/Sebabatso_Moleele_CV.pdf",
         fileName = "Sebabatso_Moleele_CV.pdf",
-        updated = "2026-10-28",
+        updated = "2026-11-19",
     )
 }
