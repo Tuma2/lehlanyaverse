@@ -896,6 +896,90 @@ html[data-boot] body::after {
   font-variant-numeric: tabular-nums;
 }
 
+/* Value cell. A VERIFIED marker hangs off its left edge, out of flow, so the meter keeps its exact size */
+.meter__end {
+  position: relative;
+  justify-self: end;
+}
+
+/* Leave room for the marker so a label never runs under it (keeps the label on one line for short names) */
+.meter--proof .meter__label {
+  padding-right: 6.4rem;
+}
+
+.meter__proof {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.6rem);
+  translate: 0 -50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.5em;
+  border: 1px solid var(--c);
+  color: var(--c);
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.meter__proof:hover,
+.meter__proof:focus-visible {
+  background: var(--c);
+  color: var(--void);
+}
+
+/* Bigger tap target on touch, without growing the marker */
+@media (pointer: coarse) {
+  .meter__proof::before {
+    content: "";
+    position: absolute;
+    inset: -0.75rem -0.5rem;
+  }
+}
+
+.meter__tip {
+  position: absolute;
+  right: -1px;
+  bottom: calc(100% + 0.45rem);
+  z-index: 5;
+  padding: 0.35rem 0.6rem;
+  background: var(--void-2);
+  border: 1px solid var(--c);
+  box-shadow: 0 0.75rem 1.5rem -0.75rem rgba(0, 0, 0, 0.9);
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--t-fast), visibility var(--t-fast);
+}
+
+.meter__proof:hover .meter__tip,
+.meter__proof:focus-visible .meter__tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Phones: the check alone, so labels keep their room; the link's accessible name still says it all */
+@media (max-width: 30rem) {
+  .meter__proof-word {
+    display: none;
+  }
+
+  .meter--proof .meter__label {
+    padding-right: 2.4rem;
+  }
+}
+
 .meter__track {
   position: relative;
   grid-column: 1 / -1;
@@ -2291,6 +2375,79 @@ html[data-flipped] .pstack__hint {
   font-weight: 800;
   letter-spacing: 0.2em;
   color: var(--m);
+}
+
+/* HUD text link: mono, uppercase, signal underline. Used for VERIFY / VIEW PROFILE */
+.hud-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--signal);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--signal) 45%, transparent);
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+
+.hud-link:hover,
+.hud-link:focus-visible {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+@media (pointer: coarse) {
+  .hud-link {
+    min-height: 44px;
+  }
+}
+
+/* Field assessments // HackerRank: lanyard ID cards in the wall's own palette (no third-party branding) */
+.assessments__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.assessments__head .medal-group__title {
+  flex: 1 1 14rem;
+  margin-bottom: 0;
+}
+
+.medal--assess {
+  --m: var(--signal);
+}
+
+.medal__code {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+
+.medal__stamp {
+  margin: 0.55rem 0 0.35rem;
+}
+
+/* Smaller than the wall's other stamps so "Intermediate" fits the narrowest card */
+.medal__stamp .stamp {
+  font-size: 0.95rem;
+}
+
+.medal__stars {
+  margin-top: 0.4rem;
+  color: var(--signal);
+  letter-spacing: 0.2em;
+}
+
+.medal__assessed {
+  margin-top: 0.4rem;
+}
+
+.medal__verify {
+  margin-top: 0.35rem;
 }
 
 /* 05 ACTIVE OPERATIONS */

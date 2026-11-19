@@ -65,7 +65,7 @@ fun OffAir() {
             }
             Dossier()
             Div({ classes("hero__actions") }) {
-                Intel.comms.filter { it.channel != CommsChannel.GITHUB }.forEach { c ->
+                Intel.comms.filter { it.channel == CommsChannel.EMAIL || it.channel == CommsChannel.LINKEDIN }.forEach { c ->
                     A(c.url, {
                         classes("btn")
                         if (c.channel != CommsChannel.EMAIL) attr("rel", "noopener noreferrer")

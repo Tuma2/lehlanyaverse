@@ -7,6 +7,7 @@ import fyi.lehlanyaverse.components.hud.Meter
 import fyi.lehlanyaverse.components.hud.MeterTone
 import fyi.lehlanyaverse.components.hud.Panel
 import fyi.lehlanyaverse.components.hud.PanelBar
+import fyi.lehlanyaverse.components.hud.Proof
 import fyi.lehlanyaverse.components.hud.SectionHead
 import fyi.lehlanyaverse.components.hud.Tilt
 import fyi.lehlanyaverse.data.Intel
@@ -52,6 +53,12 @@ fun Loadout() {
     }
 }
 
+/** A VERIFIED marker for [skill], only when an assessment backs it with a real verification link. */
+private fun proofFor(skill: Skill): Proof? =
+    Intel.skillAssessments
+        .firstOrNull { it.relatedSkill == skill.name && it.isVerifiable }
+        ?.let { Proof(it.proofLabel, it.verifyUrl!!, it.verifyLabel) }
+
 @Composable
 private fun Slot(
     slot: String,
@@ -80,7 +87,7 @@ private fun Slot(
             }
         }
         Div({ classes("loadout__meters") }) {
-            skills.forEach { Meter(it.name, it.proficiency, tone, it.note) }
+            skills.forEach { Meter(it.name, it.proficiency, tone, it.note, proofFor(it)) }
         }
     }
 }

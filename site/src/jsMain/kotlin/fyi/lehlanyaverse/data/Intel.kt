@@ -158,6 +158,37 @@ object Intel {
         Commendation("National Senior Certificate", "Gimnasium", CommendationKind.EDUCATION, CommendationGroup.EDUCATION, awarded = 2016),
     )
 
+    /*
+     * HackerRank skill assessments: COMMENDATIONS "Field assessments" + VERIFIED markers in LOADOUT.
+     * Fill in each `level` and `verifyUrl` (the certificate's public link). Until then the card shows no level
+     * stamp, no VERIFY link, and its LOADOUT skill gets no marker. Remaining TODOs are listed in the build output.
+     */
+    val skillAssessments = listOf(
+        SkillAssessment(
+            name = "Problem Solving", relatedSkill = "System design",
+            level = null, // TODO(sebabatso): HackerRank Problem Solving level (BASIC / INTERMEDIATE / ADVANCED)
+            verifyUrl = null, // TODO(sebabatso): HackerRank Problem Solving verify URL
+        ),
+        SkillAssessment(
+            name = "SQL", relatedSkill = "MySQL",
+            level = null, // TODO(sebabatso): HackerRank SQL level
+            verifyUrl = null, // TODO(sebabatso): HackerRank SQL verify URL
+        ),
+        SkillAssessment(
+            name = "Java", relatedSkill = "Java",
+            level = null, // TODO(sebabatso): HackerRank Java level
+            verifyUrl = null, // TODO(sebabatso): HackerRank Java verify URL
+        ),
+        SkillAssessment(
+            name = "Python", relatedSkill = "Python (FastAPI)",
+            level = null, // TODO(sebabatso): HackerRank Python level
+            verifyUrl = null, // TODO(sebabatso): HackerRank Python verify URL
+        ),
+    )
+
+    /** Public HackerRank profile. While null there is no COMMS channel and no "View profile" link. */
+    val hackerRankProfileUrl: String? = null // TODO(sebabatso): HackerRank profile URL, https://www.hackerrank.com/profile/<you>
+
     val operations = listOf(
         Operation(
             slug = "grading-automation-bot",
@@ -308,6 +339,8 @@ object Intel {
         CommsLink(CommsChannel.EMAIL, "EMAIL", "moleele25@gmail.com", "mailto:moleele25@gmail.com"),
         CommsLink(CommsChannel.LINKEDIN, "LINKEDIN", "in/sebabatso-moleele", "https://www.linkedin.com/in/sebabatso-moleele"),
         CommsLink(CommsChannel.GITHUB, "GITHUB", "Tuma2", "https://github.com/Tuma2"),
+    ) + listOfNotNull(
+        hackerRankProfileUrl?.let { CommsLink(CommsChannel.HACKERRANK, "HACKERRANK", it.trimEnd('/').substringAfterLast('/'), it) },
     )
 
     // Update with: ./scripts/update-cv.sh <new.pdf>  (copies the file, sets `updated` to today, commits, pushes).

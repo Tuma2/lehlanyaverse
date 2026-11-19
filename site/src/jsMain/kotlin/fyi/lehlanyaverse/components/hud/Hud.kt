@@ -124,15 +124,34 @@ fun TypeLine(text: String, caret: Boolean = true) {
     if (caret) Span({ classes("caret"); attr("aria-hidden", "true") })
 }
 
+/** Third-party proof behind a meter: [label] shows on hover/focus, [accessibleName] names the link. */
+data class Proof(val label: String, val href: String, val accessibleName: String)
+
 enum class MeterTone(val cls: String?) { SIGNAL(null), STEEL("meter--steel"), MUTED("meter--muted"), INK("meter--ink") }
 
 /** Segmented proficiency bar, exposed as an ARIA meter with the number also shown visually. */
 @Composable
-fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.SIGNAL, note: String? = null) {
+fun Meter(label: String, value: Int, tone: MeterTone = MeterTone.SIGNAL, note: String? = null, proof: Proof? = null) {
     val v = value.coerceIn(0, 100)
-    Div({ classes(*listOfNotNull("meter", tone.cls).toTypedArray()); markWhenSeen() }) {
+    Div({ classes(*listOfNotNull("meter", tone.cls, "meter--proof".takeIf { proof != null }).toTypedArray()); markWhenSeen() }) {
         Span({ classes("meter__label") }) { Text(label) }
-        Span({ classes("meter__val"); attr("aria-hidden", "true") }) { Text(v.toString().padStart(3, '0')) }
+        // The value cell; a proof marker hangs off its left edge, out of flow, so the meter never changes size
+        Span({ classes("meter__end") }) {
+            if (proof != null) {
+                A(proof.href, {
+                    classes("meter__proof")
+                    attr("target", "_blank")
+                    attr("rel", "noopener noreferrer")
+                    attr("aria-label", proof.accessibleName)
+                    attr("data-lock", "VERIFY") // cursor reticle (fx/Reticle.kt)
+                }) {
+                    Span({ classes("meter__proof-mark"); attr("aria-hidden", "true") }) { Text("✓") }
+                    Span({ classes("meter__proof-word"); attr("aria-hidden", "true") }) { Text("Verified") }
+                    Span({ classes("meter__tip"); attr("aria-hidden", "true") }) { Text(proof.label) }
+                }
+            }
+            Span({ classes("meter__val"); attr("aria-hidden", "true") }) { Text(v.toString().padStart(3, '0')) }
+        }
         if (note != null) Span({ classes("meter__note") }) { Text(note) }
         Div({
             classes("meter__track")

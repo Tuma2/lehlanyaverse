@@ -155,6 +155,32 @@ val generateCvMeta = tasks.register("generateCvMeta") {
     }
 }
 
+/**
+ * Lists every `TODO(sebabatso)` left in Intel.kt in the build output, so missing content (HackerRank levels and
+ * verify links, project repos, …) isn't forgotten. On GitHub Actions they also show as warnings on the run.
+ * Never fails the build: a TODO renders as an absence on the site, not a broken link.
+ */
+val reportIntelTodos = tasks.register("reportIntelTodos") {
+    val intel = intelFile.asFile
+    val onCi = providers.environmentVariable("GITHUB_ACTIONS").map { it == "true" }.orElse(false)
+    inputs.file(intel).withPropertyName("intel")
+    outputs.upToDateWhen { false } // always report
+    doLast {
+        val todos = intel.readLines().withIndex()
+            .filter { (_, line) -> "TODO(sebabatso)" in line }
+            .map { (i, line) -> (i + 1) to line.substringAfter("TODO(sebabatso)").trimStart(':', ' ') }
+        if (todos.isEmpty()) return@doLast
+        val ci = onCi.get()
+        println("Intel.kt: ${todos.size} TODO(sebabatso) left to fill in")
+        todos.forEach { (line, text) ->
+            if (ci) println("::warning file=site/src/jsMain/kotlin/fyi/lehlanyaverse/data/Intel.kt,line=$line::TODO $text")
+            else println("  w: Intel.kt:$line  $text")
+        }
+    }
+}
+
+tasks.matching { it.name == "jsProcessResources" }.configureEach { dependsOn(reportIntelTodos) }
+
 kotlin {
     configAsKobwebApplication("lehlanyaverse")
 

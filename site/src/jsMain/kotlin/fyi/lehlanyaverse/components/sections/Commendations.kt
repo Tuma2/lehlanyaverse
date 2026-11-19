@@ -8,7 +8,9 @@ import fyi.lehlanyaverse.components.hud.Stamp
 import fyi.lehlanyaverse.components.hud.StampInk
 import fyi.lehlanyaverse.components.hud.Todo
 import fyi.lehlanyaverse.components.hud.litOnView
+import fyi.lehlanyaverse.data.AssessmentKind
 import fyi.lehlanyaverse.data.Commendation
+import fyi.lehlanyaverse.data.SkillAssessment
 import fyi.lehlanyaverse.data.CommendationGroup
 import fyi.lehlanyaverse.data.CommendationKind
 import fyi.lehlanyaverse.data.Intel
@@ -44,6 +46,8 @@ fun Commendations() {
             CommendationGroup.entries.forEach { group ->
                 val items = byGroup[group] ?: return@forEach
                 if (group.isClearance) ClearanceCluster(group, items) else WallGroup(group, items)
+                // Field assessments hang right after the clearance cluster, before Cloud & Engineering
+                if (group.isClearance && Intel.skillAssessments.isNotEmpty()) FieldAssessments(Intel.skillAssessments)
             }
             // Hung in the empty wall space beside the shorter clusters (wide screens)
             Layer("wall__seal", rot = -8) { Span { Text("On record") } }
@@ -86,6 +90,96 @@ private fun WallGroup(group: CommendationGroup, items: List<Commendation>) {
             // Offset the cycle per group so neighbouring clusters don't hang identically
             items.forEachIndexed { i, c -> Li({ classes("medals__item") }) { Medal(c, i + group.ordinal) } }
         }
+    }
+}
+
+/**
+ * FIELD ASSESSMENTS // HACKERRANK: third-party skill assessments as lanyard ID cards in the wall's own style.
+ * The issuer is named in text only (no logo, brand colours or badge art). Missing data renders as absence:
+ * no level stamp without a level, no VERIFY link without a URL, no "View profile" without a profile URL.
+ */
+@Composable
+private fun FieldAssessments(items: List<SkillAssessment>) {
+    val titleId = "commendations-assessments"
+    val issuer = items.first().issuer
+    Div({ classes("medal-group", "assessments") }) {
+        Div({ classes("assessments__head") }) {
+            H3({ id(titleId); classes("medal-group__title", "readout") }) {
+                Text("Field assessments // $issuer")
+                Deco("medal-group__count") { Text(" // ${items.size.toString().padStart(2, '0')}") }
+            }
+            Intel.hackerRankProfileUrl?.let { url ->
+                A(url, {
+                    classes("hud-link", "assessments__profile")
+                    attr("target", "_blank")
+                    attr("rel", "noopener noreferrer")
+                    attr("aria-label", "View $issuer profile (opens in new tab)")
+                    attr("data-lock", "OPEN FILE")
+                }) {
+                    Text("View profile")
+                    Span({ attr("aria-hidden", "true") }) { Text(" ▸") }
+                }
+            }
+        }
+        Ul({ classes("medals"); attr("role", "list"); attr("aria-labelledby", titleId) }) {
+            items.forEachIndexed { i, a -> Li({ classes("medals__item") }) { AssessmentCard(a, i) } }
+        }
+    }
+}
+
+@Composable
+private fun AssessmentCard(a: SkillAssessment, index: Int) {
+    Div({
+        classes("medal", "medal--cert", "medal--tag", "medal--assess")
+        style { property("--r", "${tilts[(index + 1) % tilts.size]}deg") }
+    }) {
+        Div({ classes("medal__hang"); attr("aria-hidden", "true") }) {
+            Span({ classes("medal__ribbon") })
+            Span({ classes("medal__badge") }) { Span({ classes("medal__year", "medal__code") }) { Text(shortCode(a.name)) } }
+        }
+        Div({ classes("medal__body") }) {
+            P({ classes("readout") }) { Text("Skill ${a.kind.noun}") }
+            H4({ classes("medal__title") }) { Text(a.name) }
+            if (a.kind == AssessmentKind.BADGE && a.stars != null) {
+                P({ classes("medal__stars") }) {
+                    Deco { Text("★".repeat(a.stars) + "☆".repeat(5 - a.stars)) }
+                    Span({ classes("sr-only") }) { Text("${a.stars} of 5 stars") }
+                }
+            } else if (a.level != null) {
+                // Stamps are decorative (aria-hidden); the level is also in the readout line below
+                Div({ classes("medal__stamp") }) { Stamp(a.level.label, StampInk.SIGNAL, small = true) }
+            }
+            P({ classes("readout", "medal__assessed") }) {
+                Text("Assessed // ${a.issuer}")
+                if (a.level != null && a.kind == AssessmentKind.CERTIFICATE) {
+                    Text(" · ")
+                    Span({ classes("hl-ink") }) { Text(a.level.label) }
+                }
+            }
+            a.verifyUrl?.let { url ->
+                A(url, {
+                    classes("hud-link", "medal__verify")
+                    attr("target", "_blank")
+                    attr("rel", "noopener noreferrer")
+                    attr("aria-label", a.verifyLabel)
+                    attr("data-lock", "VERIFY")
+                }) {
+                    Text("Verify")
+                    Span({ attr("aria-hidden", "true") }) { Text(" ▸") }
+                }
+            }
+        }
+        Deco("medal__corner") { Text("ASSESS") }
+    }
+}
+
+/** Badge code: initials for several words ("PS"), short words whole ("SQL", "JAVA"), else two letters ("PY"). */
+private fun shortCode(name: String): String {
+    val words = name.split(' ', '-').filter { it.isNotBlank() }
+    return when {
+        words.size > 1 -> words.joinToString("") { it.first().uppercase() }
+        name.length <= 4 -> name.uppercase()
+        else -> name.take(2).uppercase()
     }
 }
 

@@ -102,6 +102,43 @@ data class Commendation(
     val credentialUrl: String? = null,
 )
 
+enum class AssessmentLevel(val label: String) { BASIC("Basic"), INTERMEDIATE("Intermediate"), ADVANCED("Advanced") }
+
+/** A HackerRank certificate (with a [AssessmentLevel]) or a star-rated profile badge. */
+enum class AssessmentKind(val noun: String) { CERTIFICATE("certificate"), BADGE("badge") }
+
+/**
+ * A third-party skill assessment, shown in COMMENDATIONS as "Field assessments" and as a VERIFIED marker on
+ * [relatedSkill] in LOADOUT. The issuer is text only: no logos, brand colours or badge artwork.
+ */
+data class SkillAssessment(
+    /** Skill name, e.g. "Java". */
+    val name: String,
+    /** Must equal a LOADOUT [Skill.name] exactly (IntelTest checks). */
+    val relatedSkill: String,
+    val kind: AssessmentKind = AssessmentKind.CERTIFICATE,
+    /** Null (TODO): no level stamp is shown. */
+    val level: AssessmentLevel? = null,
+    /** [AssessmentKind.BADGE] only, 1–5. */
+    val stars: Int? = null,
+    val issuer: String = "HackerRank",
+    /** Public verification link. Null (TODO): no VERIFY link and no LOADOUT marker, rather than a broken link. */
+    val verifyUrl: String? = null,
+) {
+    val isVerifiable: Boolean get() = verifyUrl != null
+
+    /** e.g. "HackerRank Java (Intermediate)", or "HackerRank Java (3★)" for a badge. */
+    val proofLabel: String
+        get() = "$issuer $name" + when {
+            kind == AssessmentKind.BADGE && stars != null -> " (${stars}★)"
+            level != null -> " (${level.label})"
+            else -> ""
+        }
+
+    /** Accessible name for verify links, e.g. "Verify HackerRank Java certificate (opens in new tab)". */
+    val verifyLabel: String get() = "Verify $issuer $name ${kind.noun} (opens in new tab)"
+}
+
 enum class OpStatus(val label: String, val code: String) {
     IN_PROGRESS("IN PROGRESS", "inprogress"),
     DEPLOYED("DEPLOYED", "deployed"),
@@ -162,7 +199,7 @@ data class IntelPaper(
     val rotation: Double? = null,
 )
 
-enum class CommsChannel { EMAIL, LINKEDIN, GITHUB }
+enum class CommsChannel { EMAIL, LINKEDIN, GITHUB, HACKERRANK }
 
 data class CommsLink(
     val channel: CommsChannel,

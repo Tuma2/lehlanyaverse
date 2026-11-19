@@ -1,5 +1,6 @@
 package fyi.lehlanyaverse
 
+import fyi.lehlanyaverse.data.AssessmentKind
 import fyi.lehlanyaverse.data.CV_SIZE_BYTES
 import fyi.lehlanyaverse.data.CommendationGroup
 import fyi.lehlanyaverse.data.CommendationKind
@@ -82,6 +83,8 @@ class IntelTest {
         val urls = Intel.operations.flatMap { listOfNotNull(it.repoUrl, it.liveUrl) } +
             Intel.fieldIntel.mapNotNull { it.link } +
             Intel.commendations.mapNotNull { it.credentialUrl } +
+            Intel.skillAssessments.mapNotNull { it.verifyUrl } +
+            listOfNotNull(Intel.hackerRankProfileUrl) +
             Intel.comms.map { it.url }
         urls.forEach { url ->
             assertTrue(url.startsWith("https://") || url.startsWith("mailto:"), "Insecure or unexpected URL: $url")
@@ -104,6 +107,25 @@ class IntelTest {
         Intel.operations.mapNotNull { it.screenshot }.forEach {
             assertTrue(it.alt.isNotBlank(), "Screenshot ${it.src} needs alt text")
             assertTrue(it.src.startsWith("/"), "Screenshot ${it.src} should be a site-relative path")
+        }
+    }
+
+    @Test
+    fun skillAssessmentsAreWellFormed() {
+        val l = Intel.loadout
+        val loadoutNames = (l.primary + l.integration + l.testing + l.secondary + l.sidearms + l.equipment).map { it.name }.toSet()
+        val names = Intel.skillAssessments.map { it.name }
+        assertEquals(names.size, names.toSet().size, "Duplicate skill assessments: $names")
+        Intel.skillAssessments.forEach { a ->
+            assertTrue(a.relatedSkill in loadoutNames, "'${a.name}' backs '${a.relatedSkill}', which isn't a LOADOUT skill: $loadoutNames")
+            when (a.kind) {
+                AssessmentKind.BADGE -> assertTrue(a.stars in 1..5, "'${a.name}' badge needs 1–5 stars, has ${a.stars}")
+                AssessmentKind.CERTIFICATE -> assertEquals(null, a.stars, "'${a.name}' is a certificate: stars are for badges")
+            }
+            a.verifyUrl?.let { assertTrue(Regex("""^https://(www\.)?hackerrank\.com/""").containsMatchIn(it), "'${a.name}' verify URL should be a hackerrank.com link: $it") }
+        }
+        Intel.hackerRankProfileUrl?.let {
+            assertTrue(Regex("""^https://(www\.)?hackerrank\.com/""").containsMatchIn(it), "HackerRank profile URL should be a hackerrank.com link: $it")
         }
     }
 
