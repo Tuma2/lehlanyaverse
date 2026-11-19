@@ -63,7 +63,7 @@ jobs:
           uploadArtifacts: true
 
       # The off-air page (pages/Maintenance.kt) takes over / and every unknown path. Its app script is stripped, so
-      # it stays the static page instead of mounting the dossier. /cv/, /css and /fonts stay, so the CV still downloads.
+      # it stays the static page instead of mounting the dossier. /cv, /cv.pdf, /css and /fonts stay, so the CV links still work.
       # The next push (or an unticked run) deploys the full site again.
       - name: Maintenance mode
         if: github.event_name == 'workflow_dispatch' && inputs.maintenance

@@ -87,17 +87,42 @@ chips.
 
 ### Updating the CV
 
-The **EXTRACT DOSSIER** button (hero ID card, header, COMMS and the maintenance page) downloads
-`site/src/jsMain/resources/public/cv/Sebabatso_Moleele_CV.pdf`. To update it:
+> **Privacy:** the CV on the site is public; anyone can download it. Upload the web version: no phone
+> number and no referees ("References available on request").
 
-1. Replace that file with the new PDF, keeping the same name.
-2. In `Intel.kt`, update `cv.updated` (year-month, e.g. `"2027-03"`, shown as "UPDATED MAR 2027") and `cv.size`
-   (e.g. `"PDF · 90 KB"`, also used in the screen-reader name "Download CV (PDF, 90 KB)").
-3. Push.
+There is one CV file: `site/src/jsMain/resources/public/cv/Sebabatso_Moleele_CV.pdf`. Everything else is
+derived from it.
 
-`IntelTest` fails the build if the size label is more than 10% off the real file, so a forgotten size can't ship.
-The button is a plain `<a download>`, so it works before the app loads and on phones that open PDFs instead.
-Nothing is tracked when someone downloads it: the site has no analytics.
+**One command:**
+
+```bash
+./scripts/update-cv.sh ~/Downloads/CV.pdf
+```
+
+The script checks that the file is a real PDF under 2 MB, copies it into place, sets `cv.updated` in `Intel.kt`
+to today, and commits "chore(cv): update CV yyyy-mm-dd". On `main` it then asks before pushing; the push
+triggers the deploy, which takes a few minutes. Add `--no-push` to only commit. On any other branch it never pushes.
+
+**By hand:** replace that file (same name), set `cv.updated` in `Intel.kt` to today's date (`"2027-03-14"`),
+and push to `main`.
+
+**Shareable links** (they never change):
+
+| Link | Use |
+|---|---|
+| `https://lehlanyaverse.fyi/cv` | Emails and applications. A static page (`public/cv/index.html`) that forwards to the PDF, with a Download link as a fallback. |
+| `https://lehlanyaverse.fyi/cv.pdf` | The PDF itself. The build copies it from the one source file. |
+
+Done automatically by the build:
+- **Size label:** the "PDF · 63 KB" on the button is measured from the file (`generateCvMeta`), so it can't go stale.
+- **Date label:** `cv.updated` shows as "UPDATED NOV 2026".
+- **Cache-busting:** every **EXTRACT DOSSIER** and **VIEW** link (hero ID card, header, COMMS, maintenance page)
+  points at `/cv.pdf?v=<cv.updated>`, so browsers fetch the new file after an update.
+
+`IntelTest` checks that the file exists, is a PDF, is under 2 MB, and that the date is a valid `yyyy-mm-dd`. The
+button is a plain `<a download>`, so it works before the app loads and on phones that open PDFs instead. The old
+`/cv/Sebabatso_Moleele_CV.pdf` address still works. Nothing is tracked when someone downloads the CV: the site
+has no analytics.
 
 ### Change the ID card photos
 

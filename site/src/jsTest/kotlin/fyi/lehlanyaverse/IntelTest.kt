@@ -1,5 +1,6 @@
 package fyi.lehlanyaverse
 
+import fyi.lehlanyaverse.data.CV_SIZE_BYTES
 import fyi.lehlanyaverse.data.CommendationGroup
 import fyi.lehlanyaverse.data.CommendationKind
 import fyi.lehlanyaverse.data.Intel
@@ -130,11 +131,11 @@ class IntelTest {
 
     @Test
     fun noPhoneNumberAnywhere() {
-        // Coordinates and years are the only digit runs expected; none of them look like a phone number
+        // Coordinates, years and ISO dates are the only digit runs expected; none of them look like a phone number
         val everything = listOf(
             Intel.operator, Intel.loadout, Intel.serviceRecord, Intel.commendations,
             Intel.operations, Intel.fieldIntel, Intel.comms, Intel.cv,
-        ).joinToString(" ")
+        ).joinToString(" ").replace(Regex("""\b\d{4}-\d{2}-\d{2}\b"""), "DATE") // ISO dates (cv.updated) aren't phones
         phonePattern.find(everything)?.let { fail("Possible phone number in Intel: '${it.value}'") }
     }
 
@@ -143,9 +144,12 @@ class IntelTest {
         val cv = Intel.cv
         assertTrue(cv.path.startsWith("/cv/") && cv.path.endsWith(".pdf"), "CV path '${cv.path}' must be /cv/<name>.pdf")
         assertEquals(cv.path.substringAfterLast('/'), cv.fileName, "CV download name must match the file name")
-        assertTrue(Regex("""^\d{4}-(0[1-9]|1[0-2])$""").matches(cv.updated), "CV updated '${cv.updated}' must be yyyy-mm")
-        val size = Regex("""^PDF · (\d+(?:\.\d+)?) (KB|MB)$""").matchEntire(cv.size)
-            ?: fail("CV size '${cv.size}' must read like 'PDF · 90 KB'")
+        assertTrue(
+            Regex("""^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$""").matches(cv.updated),
+            "CV updated '${cv.updated}' must be an ISO date, yyyy-mm-dd",
+        )
+        assertEquals("/cv.pdf?v=${cv.updated}", cv.href, "CV links must use the stable /cv.pdf with the version query")
+        assertTrue(Regex("""^PDF · \d+(\.\d)? (KB|MB)$""").matches(cv.size), "CV size '${cv.size}' must read like 'PDF · 90 KB'")
 
         // The file itself: only on Node (CI's jsNodeTest), where the repo is on disk
         if (js("typeof require === 'undefined'") as Boolean) return
@@ -156,9 +160,10 @@ class IntelTest {
             val file: String = path.join(dir, "site", "src", "jsMain", "resources", "public", cv.path.removePrefix("/"))
             if (fs.existsSync(file) as Boolean) {
                 val bytes = (fs.statSync(file).size as Number).toDouble()
-                val (n, unit) = size.destructured
-                val labelled = n.toDouble() * if (unit == "MB") 1024.0 * 1024 else 1024.0
-                assertTrue(bytes in labelled * 0.9..labelled * 1.1, "CV size label '${cv.size}' is off: the file is ${(bytes / 1024).toInt()} KB")
+                assertTrue(bytes < 2.0 * 1024 * 1024, "CV is ${(bytes / 1024).toInt()} KB: keep it under 2 MB")
+                val magic: String = fs.readFileSync(file).subarray(0, 5).toString("latin1")
+                assertEquals("%PDF-", magic, "CV file ${cv.path} is not a PDF")
+                assertEquals(CV_SIZE_BYTES.toDouble(), bytes, "Generated CV size label is stale: rebuild (generateCvMeta)")
                 return
             }
             val parent: String = path.dirname(dir)

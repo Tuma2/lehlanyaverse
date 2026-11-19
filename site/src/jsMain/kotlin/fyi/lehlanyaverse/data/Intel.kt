@@ -6,7 +6,7 @@ package fyi.lehlanyaverse.data
  * │  Add a project: append an Operation to `operations`.         │
  * │  Add a paper:   append an IntelPaper to `fieldIntel` (give   │
  * │                 it an id; linkedTo ties it to other papers). │
- * │  Update CV:     replace public/cv/…pdf, then edit `cv`.      │
+ * │  Update CV:     ./scripts/update-cv.sh <new.pdf>      │
  * │  No layout code needs to change. See README.md.              │
  * └──────────────────────────────────────────────────────────────┘
  */
@@ -310,11 +310,11 @@ object Intel {
         CommsLink(CommsChannel.GITHUB, "GITHUB", "Tuma2", "https://github.com/Tuma2"),
     )
 
-    // Replace the file (same name), then update `updated` and `size`. IntelTest checks the size against the file
+    // Update with: ./scripts/update-cv.sh <new.pdf>  (copies the file, sets `updated` to today, commits, pushes).
+    // The size label and the /cv.pdf copy are made at build time from the file. See README "Updating the CV".
     val cv = CvFile(
         path = "/cv/Sebabatso_Moleele_CV.pdf",
         fileName = "Sebabatso_Moleele_CV.pdf",
-        updated = "2026-10",
-        size = "PDF · 45 KB",
+        updated = "2026-10-28",
     )
 }

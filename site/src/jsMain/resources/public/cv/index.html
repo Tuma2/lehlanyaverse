@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+  Stable, shareable CV link: https://lehlanyaverse.fyi/cv
+  GitHub Pages has no server-side redirects, so this static page forwards to /cv.pdf three ways:
+  meta refresh (no JS), go.js (external file, so the CSP needs no hash) and a visible link.
+  Never move or rename this page: it is the link in emails and applications.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; form-action 'none'; object-src 'none'">
+  <meta name="robots" content="noindex">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="refresh" content="0; url=/cv.pdf">
+  <title>CV: Sebabatso Moleele</title>
+  <link rel="canonical" href="https://lehlanyaverse.fyi/cv.pdf">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/cv/cv.css">
+  <script src="/cv/go.js"></script>
+</head>
+<body>
+  <main>
+    <p class="cv-redirect__kicker">Transmitting dossier…</p>
+    <p>Your download should start automatically.</p>
+    <p><a class="cv-redirect__btn" href="/cv.pdf" download="Sebabatso_Moleele_CV.pdf">Download CV</a></p>
+    <p class="cv-redirect__alt"><a href="/">Back to lehlanyaverse.fyi</a></p>
+  </main>
+</body>
+</html>

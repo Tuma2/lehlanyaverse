@@ -171,14 +171,25 @@ data class CommsLink(
     val url: String,
 )
 
-/** The downloadable CV. [path] is fixed: updating the CV is replacing that file, then [updated] and [size]. */
+/**
+ * The downloadable CV. [path] is the one source file; the build copies it to the stable /cv.pdf and measures it
+ * for [size]. Updating the CV is replacing that file and setting [updated] (scripts/update-cv.sh does both).
+ */
 data class CvFile(
-    /** Site-relative path under public/, e.g. "/cv/Name_CV.pdf". */
+    /** Source file, site-relative under public/, e.g. "/cv/Name_CV.pdf". */
     val path: String,
     /** Name the browser saves it as. */
     val fileName: String,
-    /** ISO year-month, e.g. "2026-10" (shown as "UPDATED OCT 2026"). */
+    /** ISO date, e.g. "2026-11-19": shown as "UPDATED NOV 2026" and used as the cache-busting ?v= on links. */
     val updated: String,
-    /** e.g. "PDF · 90 KB". IntelTest checks it against the real file. */
-    val size: String,
-)
+) {
+    /** Stable short address, versioned so browsers and caches fetch the newest file after an update. */
+    val href: String get() = "$STABLE_PATH?v=$updated"
+
+    /** e.g. "PDF · 63 KB", measured from the real file at build time (generated CvMeta.kt). */
+    val size: String get() = CV_SIZE_LABEL
+
+    companion object {
+        const val STABLE_PATH = "/cv.pdf"
+    }
+}

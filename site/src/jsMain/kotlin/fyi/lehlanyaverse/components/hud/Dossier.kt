@@ -63,7 +63,7 @@ fun Dossier(variant: DossierVariant = DossierVariant.FULL) {
 
     val sizeWords = cv.size.replace(" · ", ", ")
     val link = @Composable {
-        A(cv.path, {
+        A(cv.href, {
             classes(*listOfNotNull("dossier__btn", "dossier--compact".takeIf { compact }).toTypedArray())
             attr("download", cv.fileName)
             attr("aria-label", "Download CV ($sizeWords)")
@@ -105,7 +105,7 @@ fun Dossier(variant: DossierVariant = DossierVariant.FULL) {
     }
     Div({ classes("dossier") }) {
         link()
-        A(cv.path, {
+        A(cv.href, {
             classes("dossier__view")
             attr("target", "_blank")
             attr("rel", "noopener")
